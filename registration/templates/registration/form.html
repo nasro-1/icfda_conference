@@ -1,0 +1,1311 @@
+<!-- registration/templates/registration/form.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICFDA 2025 - Registration Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .form-container {
+            padding: 40px;
+        }
+        
+        .location-selector {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+        
+        .location-btn {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: 2px solid #4CAF50;
+            background: white;
+            color: #4CAF50;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .location-btn.active {
+            background: #4CAF50;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .checkbox-group:hover {
+            background: #e9ecef;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .checkbox-group input[type="radio"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .price-tag {
+            background: #4CAF50;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-size: 0.9em;
+        }
+        
+        .subsection {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .subsection h3 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .total-box {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        
+        .total-amount {
+            font-size: 2em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-top: 20px;
+        }
+        
+        .submit-btn:hover {
+            transform: scale(1.02);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .error {
+            color: #dc3545;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .info-box {
+            background: #e7f7e8;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .paper-input-group {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .paper-input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4CAF50;
+        }
+        
+        .paper-input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .paper-pricing-info {
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 5px;
+            color: #0c5460;
+            font-size: 0.9em;
+        }
+        
+        .additional-paper-note {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .row {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .col {
+            flex: 1;
+        }
+
+        .menu-selection {
+            margin-left: 30px;
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+
+        .menu-selection select {
+            margin-top: 5px;
+        }
+
+        .dinner-item {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Registration</h1>
+            <p>International Conference on Fractional Differentiation and its Applications</p>
+            <p>December 15-18, 2025 - Algiers, Algeria</p>
+        </div>
+        
+        <div class="form-container">
+            <!-- Messages -->
+            <div id="messageContainer"></div>
+            
+            <!-- Error Display (for debugging) -->
+            <div id="debugError" style="display:none;" class="alert alert-error"></div>
+            
+            <div class="location-selector">
+                <button class="location-btn" onclick="selectLocation('abroad', this)">
+                    Registration from Outside Algeria (€)
+                </button>
+                <button class="location-btn active" onclick="selectLocation('algeria', this)">
+                    Registration from Algeria (DA)
+                </button>
+            </div>
+            
+            <form id="registrationForm" method="post" onsubmit="handleSubmit(event)">
+                {% csrf_token %}
+                <input type="hidden" id="locationField" name="location" value="algeria">
+                
+                <!-- Personal Information (Common) -->
+                <div class="subsection">
+                    <h3>Personal Information</h3>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="firstName">First Name *</label>
+                                <input type="text" id="firstName" name="first_name" required>
+                                <span class="error" id="first_name-error"></span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="lastName">Last Name *</label>
+                                <input type="text" id="lastName" name="last_name" required>
+                                <span class="error" id="last_name-error"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required onblur="checkEmail()">
+                        <span class="error" id="email-error"></span>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="phone">Phone Number *</label>
+                                <input type="tel" id="phone" name="phone" required placeholder="+213 123 456 789">
+                                <small style="color: #666; font-size: 0.9em;">Include country code (e.g., +213 for Algeria)</small>
+                                <span class="error" id="phone-error"></span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="nationalId">National ID / Passport Number *</label>
+                                <input type="text" id="nationalId" name="national_id" required onblur="checkNationalId()">
+                                <span class="error" id="national_id-error"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="institution">Institution/University *</label>
+                        <input type="text" id="institution" name="institution" required>
+                        <span class="error" id="institution-error"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="country">Country *</label>
+                        <select id="country" name="country" required>
+                            <option value="">-- Select Country --</option>
+                            <option value="Algeria">Algeria</option>
+                            <option value="Morocco">Morocco</option>
+                            <option value="Tunisia">Tunisia</option>
+                            <option value="Libya">Libya</option>
+                            <option value="Egypt">Egypt</option>
+                            <option value="France">France</option>
+                            <option value="Spain">Spain</option>
+                            <option value="Italy">Italy</option>
+                            <option value="Germany">Germany</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="United States">United States</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <span class="error" id="country-error"></span>
+                    </div>
+                </div>
+                
+                <!-- Registration Type (Common) -->
+                <div class="subsection">
+                    <h3>Registration Type</h3>
+                    <div class="form-group">
+                        <label for="registrationType">Select Registration Type *</label>
+                        <select id="registrationType" name="registration_type" onchange="updatePrices(); updateRegistrationInfo();" required>
+                            <option value="">-- Select --</option>
+                            <option value="full">Full Registration</option>
+                            <option value="student">Student Registration</option>
+                            <option value="visitor">Visitor Registration</option>
+                        </select>
+                        <span class="error" id="registration_type-error"></span>
+                    </div>
+                    <div class="info-box" id="registrationInfo">
+                        <strong>Note:</strong> <span id="registrationInfoText">Please select a registration type</span>
+                    </div>
+                </div>
+                
+                <!-- Paper Numbers -->
+                <div class="subsection">
+                    <h3>Paper Numbers (from PaperCept)</h3>
+                    <div class="form-group">
+                        <label for="paperCount">Number of Papers</label>
+                        <select id="paperCount" name="paper_count" onchange="updatePaperFields(); updatePrices();">
+                            <option value="0">0 - No papers</option>
+                            <option value="1">1 paper</option>
+                            <option value="2">2 papers</option>
+                            <option value="3">3 papers</option>
+                            <option value="4">4 papers</option>
+                            <option value="5">5 papers</option>
+                        </select>
+                    </div>
+                    
+                    <div id="paperFieldsContainer" style="display: none;">
+                        <!-- Paper input fields will be generated here -->
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>Format:</strong> Enter your paper numbers exactly as they appear in PaperCept
+                        <div id="paperPricingInfo" style="margin-top: 10px; display: none;"></div>
+                    </div>
+                </div>
+                
+                <!-- Abroad-specific sections -->
+                <div id="abroadSection" class="section">
+                    <!-- Tutorial Options -->
+                    <div class="subsection">
+                        <h3>Tutorial Options</h3>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="tutorialFullDay" name="tutorial_full_day" onchange="updatePrices()">
+                            <label for="tutorialFullDay">Tutorial Full Day <span class="price-tag" id="tutorialFullDayPrice">€80</span></label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="tutorialPeriod" name="tutorial_period" onchange="updatePrices()">
+                            <label for="tutorialPeriod">Tutorial Per Period <span class="price-tag" id="tutorialPeriodPrice">€50</span></label>
+                        </div>
+                    </div>
+                    
+                    <!-- Catering & Gala Dinner -->
+                    <div class="subsection">
+                        <h3>Catering & Gala Dinner</h3>
+                        <div class="dinner-item">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="welcomeDinner" name="welcome_dinner" onchange="toggleMenuSelection('welcomeDinner', 'welcomeDinnerMenu'); updatePrices();">
+                                <label for="welcomeDinner">Welcome Dinner - Monday, December 15th <span class="price-tag">€40</span></label>
+                            </div>
+                            <div class="menu-selection" id="welcomeDinnerMenu" style="display:none;">
+                                <label for="welcomeDinnerMenuType">Menu Type *</label>
+                                <select id="welcomeDinnerMenuType" name="welcome_dinner_menu">
+                                    <option value="">-- Select Menu --</option>
+                                    <option value="meat">Meat Menu</option>
+                                    <option value="fish">Fish Menu</option>
+                                    <option value="vegetarian">Vegetarian Menu</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="dinner-item">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="dinner" name="dinner" onchange="toggleMenuSelection('dinner', 'dinnerMenu'); updatePrices();">
+                                <label for="dinner">Dinner - Tuesday, December 16th <span class="price-tag">€40</span></label>
+                            </div>
+                            <div class="menu-selection" id="dinnerMenu" style="display:none;">
+                                <label for="dinnerMenuType">Menu Type *</label>
+                                <select id="dinnerMenuType" name="dinner_menu">
+                                    <option value="">-- Select Menu --</option>
+                                    <option value="meat">Meat Menu</option>
+                                    <option value="fish">Fish Menu</option>
+                                    <option value="vegetarian">Vegetarian Menu</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="dinner-item">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="galaDinner" name="gala_dinner" onchange="toggleMenuSelection('galaDinner', 'galaDinnerMenu'); updatePrices();">
+                                <label for="galaDinner">Gala Dinner - Wednesday, December 17th <span class="price-tag">€80</span></label>
+                            </div>
+                            <div class="menu-selection" id="galaDinnerMenu" style="display:none;">
+                                <label for="galaDinnerMenuType">Menu Type *</label>
+                                <select id="galaDinnerMenuType" name="gala_dinner_menu">
+                                    <option value="">-- Select Menu --</option>
+                                    <option value="meat">Meat Menu</option>
+                                    <option value="fish">Fish Menu</option>
+                                    <option value="vegetarian">Vegetarian Menu</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Program -->
+                    <div class="subsection">
+                        <h3>Social Program</h3>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="socialProgram" name="social_program" onchange="updatePrices()">
+                            <label for="socialProgram">Cultural Visit of Algiers - December 18, 2025 <span class="price-tag">€20</span></label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Algeria-specific sections -->
+                <div id="algeriaSection" class="section active">
+                    <!-- Catering & Gala Dinner for Algeria -->
+                    <div class="subsection">
+                        <h3>Catering & Gala Dinner</h3>
+                        <div class="dinner-item">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="welcomeDinnerAlgeria" name="welcome_dinner" onchange="toggleMenuSelection('welcomeDinnerAlgeria', 'welcomeDinnerAlgeriaMenu'); updatePrices()">
+                                <label for="welcomeDinnerAlgeria">Welcome Dinner - Monday, December 15th <span class="price-tag">5500 DA</span></label>
+                            </div>
+                            <div class="menu-selection" id="welcomeDinnerAlgeriaMenu" style="display:none;">
+                                <label for="welcomeDinnerAlgeriaMenuType">Menu Type *</label>
+                                <select id="welcomeDinnerAlgeriaMenuType" name="welcome_dinner_menu">
+                                    <option value="">-- Select Menu --</option>
+                                    <option value="meat">Meat Menu</option>
+                                    <option value="fish">Fish Menu</option>
+                                    <option value="vegetarian">Vegetarian Menu</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="dinner-item">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="dinnerAlgeria" name="dinner" onchange="toggleMenuSelection('dinnerAlgeria', 'dinnerAlgeriaMenu'); updatePrices()">
+                                <label for="dinnerAlgeria">Dinner - Tuesday, December 16th <span class="price-tag">5500 DA</span></label>
+                            </div>
+                            <div class="menu-selection" id="dinnerAlgeriaMenu" style="display:none;">
+                                <label for="dinnerAlgeriaMenuType">Menu Type *</label>
+                                <select id="dinnerAlgeriaMenuType" name="dinner_menu">
+                                    <option value="">-- Select Menu --</option>
+                                    <option value="meat">Meat Menu</option>
+                                    <option value="fish">Fish Menu</option>
+                                    <option value="vegetarian">Vegetarian Menu</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="dinner-item">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="galaDinnerAlgeria" name="gala_dinner" onchange="toggleMenuSelection('galaDinnerAlgeria', 'galaDinnerAlgeriaMenu'); updatePrices()">
+                                <label for="galaDinnerAlgeria">Gala Dinner - Wednesday, December 17th <span class="price-tag">6000 DA</span></label>
+                            </div>
+                            <div class="menu-selection" id="galaDinnerAlgeriaMenu" style="display:none;">
+                                <label for="galaDinnerAlgeriaMenuType">Menu Type *</label>
+                                <select id="galaDinnerAlgeriaMenuType" name="gala_dinner_menu">
+                                    <option value="">-- Select Menu --</option>
+                                    <option value="meat">Meat Menu</option>
+                                    <option value="fish">Fish Menu</option>
+                                    <option value="vegetarian">Vegetarian Menu</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Accompanying Person (Common) -->
+                <div class="subsection">
+                    <h3>Accompanying Person</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="accompanyingPerson" onchange="toggleAccompanyingPerson()">
+                        <label for="accompanyingPerson">I will bring an accompanying person</label>
+                    </div>
+                    <div id="accompanyingDetails" style="display:none;">
+                        <div class="form-group">
+                            <label for="accompanyingName">Accompanying Person Name</label>
+                            <input type="text" id="accompanyingName" name="accompanying_person_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="accompanyingNationalId">National ID / Passport Number</label>
+                            <input type="text" id="accompanyingNationalId" name="accompanying_national_id" placeholder="National ID or Passport Number">
+                        </div>
+                        
+                        <!-- Dinner Options -->
+                        <h4 style="margin: 20px 0 10px 0; color: #4CAF50;">Dinner Options</h4>
+                        <div class="dinner-item">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="accompanyingWelcome" name="accompanying_welcome" onchange="toggleMenuSelection('accompanyingWelcome', 'accompanyingWelcomeMenu'); updatePrices()">
+                                <label for="accompanyingWelcome">
+                                    Welcome Dinner - December 15th
+                                    <span class="price-tag" id="accompanyingWelcomePrice">5500 DA</span>
+                                </label>
+                            </div>
+                            <div class="menu-selection" id="accompanyingWelcomeMenu" style="display:none;">
+                                <label for="accompanyingWelcomeMenuType">Menu Type *</label>
+                                <select id="accompanyingWelcomeMenuType" name="accompanying_welcome_menu">
+                                    <option value="">-- Select Menu --</option>
+                                    <option value="meat">Meat Menu</option>
+                                    <option value="fish">Fish Menu</option>
+                                    <option value="vegetarian">Vegetarian Menu</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="dinner-item">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="accompanyingDinner" name="accompanying_dinner" onchange="toggleMenuSelection('accompanyingDinner', 'accompanyingDinnerMenu'); updatePrices()">
+                                <label for="accompanyingDinner">
+                                    Dinner - December 16th
+                                    <span class="price-tag" id="accompanyingDinnerPrice">5500 DA</span>
+                                </label>
+                            </div>
+                            <div class="menu-selection" id="accompanyingDinnerMenu" style="display:none;">
+                                <label for="accompanyingDinnerMenuType">Menu Type *</label>
+                                <select id="accompanyingDinnerMenuType" name="accompanying_dinner_menu">
+                                    <option value="">-- Select Menu --</option>
+                                    <option value="meat">Meat Menu</option>
+                                    <option value="fish">Fish Menu</option>
+                                    <option value="vegetarian">Vegetarian Menu</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="dinner-item">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="accompanyingGala" name="accompanying_gala" onchange="toggleMenuSelection('accompanyingGala', 'accompanyingGalaMenu'); updatePrices()">
+                                <label for="accompanyingGala">
+                                    Gala Dinner - December 17th
+                                    <span class="price-tag" id="accompanyingGalaPrice">5000 DA</span>
+                                </label>
+                            </div>
+                            <div class="menu-selection" id="accompanyingGalaMenu" style="display:none;">
+                                <label for="accompanyingGalaMenuType">Menu Type *</label>
+                                <select id="accompanyingGalaMenuType" name="accompanying_gala_menu">
+                                    <option value="">-- Select Menu --</option>
+                                    <option value="meat">Meat Menu</option>
+                                    <option value="fish">Fish Menu</option>
+                                    <option value="vegetarian">Vegetarian Menu</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Lunch Options -->
+                        <h4 style="margin: 20px 0 10px 0; color: #4CAF50;">Lunch Options</h4>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="accompanyingWelcomeLunch" name="accompanying_welcome_lunch" onchange="updatePrices()">
+                            <label for="accompanyingWelcomeLunch">
+                                Welcome Lunch - December 15th
+                                <span class="price-tag" id="accompanyingWelcomeLunchPrice">5500 DA</span>
+                            </label>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="accompanyingLunch16" name="accompanying_lunch_16" onchange="updatePrices()">
+                            <label for="accompanyingLunch16">
+                                Lunch - December 16th
+                                <span class="price-tag" id="accompanyingLunch16Price">5500 DA</span>
+                            </label>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="accompanyingLunch17" name="accompanying_lunch_17" onchange="updatePrices()">
+                            <label for="accompanyingLunch17">
+                                Lunch - December 17th
+                                <span class="price-tag" id="accompanyingLunch17Price">5500 DA</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Accommodation -->
+                <div class="subsection">
+                    <h3>Accommodation at Hotel Mercure</h3>
+                    <div class="form-group">
+                        <label for="roomType">Room Type</label>
+                        <select id="roomType" name="room_type" onchange="toggleAccommodationTiming(); updatePrices()">
+                            <option value="">-- No accommodation needed --</option>
+                            <option value="single" id="singleRoom">Single Room - 10,500 DA/night (Special ICFDA Rate)</option>
+                            <option value="double" id="doubleRoom">Double Room - 12,500 DA/night (Special ICFDA Rate)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="accommodationTimingGroup" style="display:none;">
+                        <label>Accommodation Timing</label>
+                        <div class="checkbox-group" style="background: white; border: 2px solid #e0e0e0; margin-bottom: 5px;">
+                            <input type="radio" id="accommodationBefore" name="accommodation_timing" value="before">
+                            <label for="accommodationBefore" style="margin-bottom: 0;">Accommodation the night before the presentation day</label>
+                        </div>
+                        <div class="checkbox-group" style="background: white; border: 2px solid #e0e0e0; margin-bottom: 10px;">
+                            <input type="radio" id="accommodationPresentation" name="accommodation_timing" value="presentation">
+                            <label for="accommodationPresentation" style="margin-bottom: 0;">Accommodation on the presentation night itself</label>
+                        </div>
+                        <div style="color: #666; font-size: 0.9em; font-style: italic;">
+                            <strong>Note:</strong> Your exact presentation day will be scheduled later by the committee.
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="nights">Number of Nights</label>
+                        <input type="number" id="nights" name="number_of_nights" min="0" value="0" onchange="updatePrices()">
+                    </div>
+                    <div class="info-box">
+                        <strong>Special Conference Rates:</strong> These are negotiated rates exclusively for ICFDA 2025 participants. Breakfast included in all rates.
+                        <span id="accommodationNote"></span>
+                    </div>
+                </div>
+                
+                <!-- Special Requirements -->
+                <div class="subsection">
+                    <h3>Special Requirements</h3>
+                    <div class="form-group">
+                        <label for="specialRequirements">Special Requirements (Optional)</label>
+                        <textarea id="specialRequirements" name="special_requirements" rows="3" 
+                                  placeholder="Dietary restrictions, accessibility needs, etc."></textarea>
+                    </div>
+                </div>
+                
+                <!-- Registration Period Notice -->
+                <div class="alert" id="periodNotice">
+                    <strong>Registration Period:</strong> <span id="currentPeriod">Calculating...</span>
+                </div>
+                
+                <!-- Total -->
+                <div class="total-box">
+                    <div>Total Amount</div>
+                    <div class="total-amount" id="totalAmount">0 DA</div>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span id="submitBtnText">Submit Registration</span>
+                    <span class="spinner" id="submitSpinner" style="display:none;"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration
+        const CSRF_TOKEN = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        let currentLocation = 'algeria'; // Default to Algeria as shown in image
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Form initialized');
+            updatePrices();
+            updatePeriodNotice();
+            updatePaperFields(); // Initialize paper fields on page load
+            
+            // Initialize accommodation timing visibility
+            toggleAccommodationTiming();
+        });
+        
+        function selectLocation(location, button) {
+            currentLocation = location;
+            document.getElementById('locationField').value = location;
+            
+            // Update button states
+            document.querySelectorAll('.location-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+            
+            // Toggle sections
+            if (location === 'abroad') {
+                document.getElementById('abroadSection').classList.add('active');
+                document.getElementById('algeriaSection').classList.remove('active');
+                
+                // Update labels and prices for abroad
+                document.getElementById('tutorialFullDayPrice').textContent = '€80';
+                document.getElementById('tutorialPeriodPrice').textContent = '€50';
+                document.getElementById('accompanyingWelcomePrice').textContent = '€40';
+                document.getElementById('accompanyingDinnerPrice').textContent = '€40';
+                document.getElementById('accompanyingGalaPrice').textContent = '€80';
+                document.getElementById('accompanyingWelcomeLunchPrice').textContent = '€40';
+                document.getElementById('accompanyingLunch16Price').textContent = '€40';
+                document.getElementById('accompanyingLunch17Price').textContent = '€40';
+                document.getElementById('singleRoom').textContent = 'Single Room - €70/night (Special ICFDA Rate)';
+                document.getElementById('doubleRoom').textContent = 'Double Room - €84/night (Special ICFDA Rate)';
+            } else {
+                document.getElementById('abroadSection').classList.remove('active');
+                document.getElementById('algeriaSection').classList.add('active');
+                
+                // Update labels and prices for Algeria
+                document.getElementById('accompanyingWelcomePrice').textContent = '5500 DA';
+                document.getElementById('accompanyingDinnerPrice').textContent = '5500 DA';
+                document.getElementById('accompanyingGalaPrice').textContent = '5000 DA';
+                document.getElementById('accompanyingWelcomeLunchPrice').textContent = '5500 DA';
+                document.getElementById('accompanyingLunch16Price').textContent = '5500 DA';
+                document.getElementById('accompanyingLunch17Price').textContent = '5500 DA';
+                document.getElementById('singleRoom').textContent = 'Single Room - 10,500 DA/night (Special ICFDA Rate)';
+                document.getElementById('doubleRoom').textContent = 'Double Room - 12,500 DA/night (Special ICFDA Rate)';
+            }
+            
+            updateRegistrationInfo();
+            updatePaperFields(); // Update paper fields and pricing when location changes
+            updatePrices();
+        }
+
+        function toggleMenuSelection(checkboxId, menuId) {
+            const checkbox = document.getElementById(checkboxId);
+            const menuDiv = document.getElementById(menuId);
+            const menuSelect = menuDiv.querySelector('select');
+            
+            if (checkbox.checked) {
+                menuDiv.style.display = 'block';
+                menuSelect.required = true;
+            } else {
+                menuDiv.style.display = 'none';
+                menuSelect.required = false;
+                menuSelect.value = '';
+            }
+        }
+        
+        function updatePaperFields() {
+            const paperCount = parseInt(document.getElementById('paperCount').value) || 0;
+            const container = document.getElementById('paperFieldsContainer');
+            const regType = document.getElementById('registrationType').value;
+            
+            console.log('updatePaperFields called:', { paperCount, regType, currentLocation });
+            
+            // Clear existing fields
+            container.innerHTML = '';
+            
+            if (paperCount > 0) {
+                container.style.display = 'block';
+                
+                // Determine included papers based on registration type and location
+                let includedPapers = 0;
+                if (currentLocation === 'abroad') {
+                    if (regType === 'full') {
+                        includedPapers = 2;
+                    } else if (regType === 'student') {
+                        includedPapers = 1;
+                    } else if (regType === 'visitor') {
+                        includedPapers = 0;
+                    }
+                } else {
+                    // For Algeria, all papers are included (no extra cost)
+                    includedPapers = paperCount;
+                }
+                
+                console.log('Including papers:', includedPapers, 'of', paperCount);
+                
+                // Create input fields for each paper
+                for (let i = 1; i <= paperCount; i++) {
+                    const isAdditional = i > includedPapers;
+                    const fieldDiv = document.createElement('div');
+                    fieldDiv.className = 'paper-input-group';
+                    
+                    const label = document.createElement('label');
+                    label.setAttribute('for', `paper_${i}`);
+                    label.textContent = `Paper ${i} Number`;
+                    if (isAdditional && currentLocation === 'abroad') {
+                        const additionalSpan = document.createElement('span');
+                        additionalSpan.className = 'additional-paper-note';
+                        additionalSpan.textContent = ' (Additional - €100)';
+                        label.appendChild(additionalSpan);
+                    }
+                    
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.name = `paper_${i}`;
+                    input.id = `paper_${i}`;
+                    input.placeholder = `e.g., FR-${i}23.4`;
+                    input.required = true;
+                    input.addEventListener('input', updatePrices); // Update prices when paper numbers change
+                    
+                    fieldDiv.appendChild(label);
+                    fieldDiv.appendChild(input);
+                    container.appendChild(fieldDiv);
+                }
+                
+                // Update pricing info
+                updatePaperPricingInfo(paperCount, includedPapers);
+                
+                console.log('Created', paperCount, 'paper input fields');
+            } else {
+                container.style.display = 'none';
+                console.log('No papers selected, hiding container');
+            }
+        }
+        
+        function updatePaperPricingInfo(paperCount, includedPapers) {
+            const infoDiv = document.getElementById('paperPricingInfo');
+            
+            if (currentLocation === 'abroad' && paperCount > 0) {
+                const additionalPapers = Math.max(0, paperCount - includedPapers);
+                let infoText = `<strong>Paper Pricing:</strong><br>`;
+                
+                if (includedPapers > 0) {
+                    infoText += `• ${includedPapers} paper(s) included in registration<br>`;
+                }
+                
+                if (additionalPapers > 0) {
+                    const additionalCost = additionalPapers * 100;
+                    infoText += `• ${additionalPapers} additional paper(s): €${additionalCost}`;
+                }
+                
+                infoDiv.innerHTML = `<div class="paper-pricing-info">${infoText}</div>`;
+                infoDiv.style.display = 'block';
+            } else if (currentLocation === 'algeria' && paperCount > 0) {
+                infoDiv.innerHTML = `<div class="paper-pricing-info"><strong>All papers included at no extra cost</strong></div>`;
+                infoDiv.style.display = 'block';
+            } else {
+                infoDiv.style.display = 'none';
+            }
+        }
+        
+        function updateRegistrationInfo() {
+            const regType = document.getElementById('registrationType').value;
+            const infoText = document.getElementById('registrationInfoText');
+            
+            if (!regType) {
+                infoText.textContent = 'Please select a registration type';
+                return;
+            }
+            
+            if (regType === 'visitor') {
+                infoText.textContent = 'Visitor registration provides conference access only. No papers or tutorials included.';
+            } else if (currentLocation === 'abroad') {
+                if (regType === 'full') {
+                    infoText.textContent = 'Full registration covers 2 papers. Additional papers: €100 each.';
+                } else {
+                    infoText.textContent = 'Student registration covers 1 paper. Additional papers: €100 each.';
+                }
+            } else {
+                infoText.textContent = 'Conference registration. Papers included at no extra cost.';
+            }
+        }
+        
+        function getRegistrationPeriod() {
+            const today = new Date();
+            const earlyDeadline = new Date('2025-10-15');
+            const normalDeadline = new Date('2025-11-21');
+            
+            if (today <= earlyDeadline) return 'early';
+            if (today <= normalDeadline) return 'normal';
+            return 'late';
+        }
+        
+        function updatePeriodNotice() {
+            const period = getRegistrationPeriod();
+            const periodText = {
+                'early': 'Early Registration (until October 15, 2025)',
+                'normal': 'Normal Registration (until November 21, 2025)',
+                'late': 'Late Registration'
+            };
+            document.getElementById('currentPeriod').textContent = periodText[period];
+        }
+        
+        async function updatePrices() {
+            const regType = document.getElementById('registrationType').value;
+            
+            if (!regType) {
+                document.getElementById('totalAmount').textContent = currentLocation === 'abroad' ? '€0' : '0 DA';
+                return;
+            }
+            
+            // Collect form data
+            const paperCount = parseInt(document.getElementById('paperCount').value) || 0;
+            
+            let data = {
+                location: currentLocation,
+                registration_type: regType,
+                paper_count: paperCount
+            };
+            
+            if (currentLocation === 'abroad') {
+                data.tutorial_full_day = document.getElementById('tutorialFullDay').checked;
+                data.tutorial_period = document.getElementById('tutorialPeriod').checked;
+                data.social_program = document.getElementById('socialProgram').checked;
+                data.welcome_dinner = document.getElementById('welcomeDinner').checked;
+                data.dinner = document.getElementById('dinner').checked;
+                data.gala_dinner = document.getElementById('galaDinner').checked;
+            } else {
+                data.welcome_dinner = document.getElementById('welcomeDinnerAlgeria').checked;
+                data.dinner = document.getElementById('dinnerAlgeria').checked;
+                data.gala_dinner = document.getElementById('galaDinnerAlgeria').checked;
+            }
+            
+            data.room_type = document.getElementById('roomType').value;
+            data.number_of_nights = parseInt(document.getElementById('nights').value) || 0;
+            data.accommodation_timing = document.querySelector('input[name="accommodation_timing"]:checked')?.value || '';
+            data.accompanying_welcome = document.getElementById('accompanyingWelcome')?.checked || false;
+            data.accompanying_dinner = document.getElementById('accompanyingDinner')?.checked || false;
+            data.accompanying_gala = document.getElementById('accompanyingGala')?.checked || false;
+            data.accompanying_welcome_lunch = document.getElementById('accompanyingWelcomeLunch')?.checked || false;
+            data.accompanying_lunch_16 = document.getElementById('accompanyingLunch16')?.checked || false;
+            data.accompanying_lunch_17 = document.getElementById('accompanyingLunch17')?.checked || false;
+            
+            console.log('Sending price calculation request:', data);
+            
+            try {
+                const response = await fetch('/registration/api/calculate-price/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': CSRF_TOKEN
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Price calculation result:', result);
+                
+                if (result.total !== undefined) {
+                    if (result.currency === 'EUR') {
+                        document.getElementById('totalAmount').textContent = `€${result.total.toFixed(2)}`;
+                    } else {
+                        document.getElementById('totalAmount').textContent = `${Math.round(result.total).toLocaleString()} DA`;
+                    }
+                }
+            } catch (error) {
+                console.error('Price calculation error:', error);
+                document.getElementById('debugError').style.display = 'block';
+                document.getElementById('debugError').textContent = `Error calculating price: ${error.message}`;
+            }
+            
+            updateRegistrationInfo();
+        }
+        
+        function toggleAccommodationTiming() {
+            const roomType = document.getElementById('roomType').value;
+            const timingGroup = document.getElementById('accommodationTimingGroup');
+            
+            console.log('toggleAccommodationTiming called, roomType:', roomType); // Debug log
+            
+            if (roomType === 'single' || roomType === 'double') {
+                timingGroup.style.display = 'block';
+                console.log('Showing accommodation timing'); // Debug log
+            } else {
+                timingGroup.style.display = 'none';
+                console.log('Hiding accommodation timing'); // Debug log
+                // Clear radio button selection
+                document.querySelectorAll('input[name="accommodation_timing"]').forEach(radio => {
+                    radio.checked = false;
+                });
+            }
+        }
+        
+        function toggleAccompanyingPerson() {
+            const isChecked = document.getElementById('accompanyingPerson').checked;
+            const details = document.getElementById('accompanyingDetails');
+            
+            details.style.display = isChecked ? 'block' : 'none';
+            
+            if (!isChecked) {
+                // Clear accompanying fields
+                document.getElementById('accompanyingName').value = '';
+                document.getElementById('accompanyingNationalId').value = '';
+                
+                // Clear checkboxes and menus
+                const checkboxes = ['accompanyingWelcome', 'accompanyingDinner', 'accompanyingGala', 
+                                 'accompanyingWelcomeLunch', 'accompanyingLunch16', 'accompanyingLunch17'];
+                checkboxes.forEach(id => {
+                    const checkbox = document.getElementById(id);
+                    if (checkbox) {
+                        checkbox.checked = false;
+                        // Also hide corresponding menu
+                        const menuId = id + 'Menu';
+                        const menuDiv = document.getElementById(menuId);
+                        if (menuDiv) {
+                            menuDiv.style.display = 'none';
+                            const select = menuDiv.querySelector('select');
+                            if (select) {
+                                select.value = '';
+                                select.required = false;
+                            }
+                        }
+                    }
+                });
+            }
+            
+            updatePrices();
+        }
+        
+        async function checkEmail() {
+            const email = document.getElementById('email').value;
+            const errorSpan = document.getElementById('email-error');
+            
+            if (!email) {
+                errorSpan.textContent = '';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/registration/api/check-email/?email=${encodeURIComponent(email)}`);
+                const result = await response.json();
+                
+                if (result.exists) {
+                    errorSpan.textContent = 'This email already has a completed registration.';
+                    document.getElementById('email').classList.add('field-error');
+                } else {
+                    errorSpan.textContent = '';
+                    document.getElementById('email').classList.remove('field-error');
+                }
+            } catch (error) {
+                console.error('Email check error:', error);
+            }
+        }
+        
+        async function checkNationalId() {
+            const nationalId = document.getElementById('nationalId').value;
+            const errorSpan = document.getElementById('national_id-error');
+            
+            if (!nationalId) {
+                errorSpan.textContent = '';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/registration/api/check-national-id/?national_id=${encodeURIComponent(nationalId)}`);
+                const result = await response.json();
+                
+                if (result.exists) {
+                    errorSpan.textContent = 'This ID already has a completed registration.';
+                    document.getElementById('nationalId').classList.add('field-error');
+                } else {
+                    errorSpan.textContent = '';
+                    document.getElementById('nationalId').classList.remove('field-error');
+                }
+            } catch (error) {
+                console.error('National ID check error:', error);
+            }
+        }
+        
+        function showMessage(message, type = 'info') {
+            const container = document.getElementById('messageContainer');
+            const alertClass = type === 'error' ? 'alert-error' : type === 'success' ? 'alert-success' : 'alert';
+            
+            container.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+            
+            // Auto-hide success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    container.innerHTML = '';
+                }, 5000);
+            }
+        }
+        
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(span => {
+                span.textContent = '';
+            });
+            document.querySelectorAll('.field-error').forEach(field => {
+                field.classList.remove('field-error');
+            });
+        }
+        
+        function showErrors(errors) {
+            console.log('Showing errors:', errors);
+            Object.keys(errors).forEach(field => {
+                const errorSpan = document.getElementById(`${field}-error`);
+                const inputField = document.querySelector(`[name="${field}"]`);
+                
+                if (errorSpan) {
+                    const errorText = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
+                    errorSpan.textContent = errorText;
+                }
+                if (inputField) {
+                    inputField.classList.add('field-error');
+                }
+            });
+        }
+        
+        function collectPaperNumbers() {
+            const paperCount = parseInt(document.getElementById('paperCount').value) || 0;
+            const papers = [];
+            
+            for (let i = 1; i <= paperCount; i++) {
+                const paperField = document.getElementById(`paper_${i}`);
+                if (paperField && paperField.value.trim()) {
+                    papers.push(paperField.value.trim());
+                }
+            }
+            
+            return papers;
+        }
+        
+        async function handleSubmit(event) {
+            event.preventDefault();
+            console.log('Form submitted');
+            
+            clearErrors();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+            const submitSpinner = document.getElementById('submitSpinner');
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtnText.textContent = 'Processing...';
+            submitSpinner.style.display = 'inline-block';
+            
+            // Collect form data
+            const formData = new FormData(event.target);
+            const data = {};
+            
+            // Convert FormData to object
+            for (let [key, value] of formData.entries()) {
+                if (data[key]) {
+                    // Handle multiple values (like checkboxes)
+                    if (Array.isArray(data[key])) {
+                        data[key].push(value);
+                    } else {
+                        data[key] = [data[key], value];
+                    }
+                } else {
+                    data[key] = value;
+                }
+            }
+            
+            // Collect individual paper numbers and convert to the expected format
+            const papers = collectPaperNumbers();
+            if (papers.length > 0) {
+                data.paper_numbers = papers.join('\n');
+            }
+            
+            // Set paper count for backend processing
+            data.paper_count = parseInt(document.getElementById('paperCount').value) || 0;
+            
+            console.log('Submitting data:', data);
+            
+            try {
+                const response = await fetch('/registration/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': CSRF_TOKEN,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                console.log('Submit response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Submit result:', result);
+                
+                if (result.success) {
+                    showMessage('Registration submitted successfully! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = result.redirect_url;
+                    }, 1500);
+                } else {
+                    showMessage('Please correct the errors below.', 'error');
+                    if (result.errors) {
+                        showErrors(result.errors);
+                    }
+                    
+                    // Re-enable submit button
+                    submitBtn.disabled = false;
+                    submitBtnText.textContent = 'Submit Registration';
+                    submitSpinner.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                showMessage('An error occurred. Please try again. ' + error.message, 'error');
+                
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtnText.textContent = 'Submit Registration';
+                submitSpinner.style.display = 'none';
+            }
+        }
+        
+        // Debug: Log when functions are called
+        console.log('Script loaded. Current location:', currentLocation);
+    </script>
+</body>
+</html>

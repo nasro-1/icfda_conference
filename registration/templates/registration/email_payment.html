@@ -1,0 +1,113 @@
+<!-- ================== registration/templates/registration/email_payment.html ================== -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICFDA 2025 - Payment Confirmation</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+        <div style="font-size: 60px; margin-bottom: 10px;">✓</div>
+        <h1 style="margin: 0;">Payment Confirmed</h1>
+        <p style="margin: 10px 0 0 0;">ICFDA 2025 Registration</p>
+    </div>
+    
+    <div style="background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none;">
+        <h2 style="color: #28a745;">Dear {{ registration.first_name }} {{ registration.last_name }},</h2>
+        
+        <p>Your payment has been successfully processed. Your registration for ICFDA 2024 is now complete!</p>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #28a745;">
+            <h3 style="color: #28a745; margin-top: 0;">Payment Receipt</h3>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Fee Code:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; color: #28a745; font-weight: bold;">{{ registration.fee_code }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Payment Reference:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.payment_reference }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Amount Paid:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold;">
+                        {{ registration.currency }} {{ registration.total_amount }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Payment Date:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.updated_at|date:"F d, Y" }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px;"><strong>Status:</strong></td>
+                    <td style="padding: 8px; color: #28a745; font-weight: bold;">✓ PAID IN FULL</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
+            <h3 style="color: #155724; margin-top: 0;">Your Registration Includes</h3>
+            <ul style="margin: 10px 0; padding-left: 20px; color: #155724;">
+                <li>Conference attendance (December 15-18, 2025)</li>
+                <li>Conference materials and proceedings</li>
+                <li>Coffee breaks and lunches</li>
+                {% if registration.welcome_dinner %}
+                <li>Welcome Dinner - Monday, December 15th</li>
+                {% endif %}
+                {% if registration.dinner %}
+                <li>Dinner - Tuesday, December 16th</li>
+                {% endif %}
+                {% if registration.gala_dinner %}
+                <li>Gala Dinner - Wednesday, December 17th</li>
+                {% endif %}
+                {% if registration.social_program %}
+                <li>Cultural Visit of Algiers - Thursday, December 18th</li>
+                {% endif %}
+                {% if registration.tutorial_full_day %}
+                <li>Full Day Tutorial</li>
+                {% endif %}
+                {% if registration.tutorial_period %}
+                <li>Tutorial Per Period</li>
+                {% endif %}
+            </ul>
+        </div>
+        
+        <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea;">
+            <h3 style="color: #667eea; margin-top: 0;">Next Steps</h3>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+                <li>Save this email for your records</li>
+                <li>Book your travel arrangements</li>
+                <li>Prepare your presentation (if applicable)</li>
+                <li>Join us in Algiers on December 15-18, 2025!</li>
+            </ol>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #667eea; margin-top: 0;">Venue Information</h3>
+            <p><strong>Hotel Mercure Alger Palais des Congrès</strong><br>
+            Pins Maritimes, Mohammadia<br>
+            16000 Algiers, Algeria<br>
+            Phone: +213 21 20 00 00</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="http://{{ base_url }}/registration/success/{{ registration.registration_id }}/" 
+               style="display: inline-block; background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px;">
+                View Registration Details
+            </a>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <p style="color: #666; font-size: 14px;">
+                Thank you for registering for ICFDA 2025!<br>
+                We look forward to seeing you in Algiers.<br><br>
+                ICFDA 2025 Organizing Committee<br>
+                <a href="https://icfda2024.com" style="color: #667eea;">www.icfda2024.com</a> | 
+                <a href="mailto:icfda2024@conference.org" style="color: #667eea;">icfda2025@conference.org</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

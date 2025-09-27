@@ -1,0 +1,352 @@
+<!-- registration/templates/registration/email_hotel_reservation.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICFDA 2025 – Hotel Reservation Request</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+        <h1 style="margin: 0;">ICFDA 2025</h1>
+        <p style="margin: 10px 0 0 0;">Conference Registration & Hotel Reservation Request</p>
+    </div>
+    
+    <div style="background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none;">
+        <h2 style="color: #4CAF50;">Conference Registration & Hotel Reservation Request</h2>
+        
+        <p>Dear Hotel Team,</p>
+        
+        <p>We have a new conference registration and accommodation request from an ICFDA 2025 participant. Please process this reservation according to the negotiated conference rates and prepare for their conference attendance.</p>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4CAF50;">
+            <h3 style="color: #4CAF50; margin-top: 0;">Guest Information</h3>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; width: 35%;"><strong>Name:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.get_full_name }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Email:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.email }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Phone:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.phone }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Institution:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.institution }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Country:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.country }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>National ID:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.national_id }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Registration Type:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.get_registration_type_display }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Registration Location:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.get_location_display }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px;"><strong>Fee Code:</strong></td>
+                    <td style="padding: 8px; color: #4CAF50; font-weight: bold;">{{ registration.fee_code }}</td>
+                </tr>
+            </table>
+        </div>
+        
+        {% if registration.papers.exists %}
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196F3;">
+            <h3 style="color: #2196F3; margin-top: 0;">Paper Information</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; width: 35%;"><strong>Number of Papers:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.papers.count }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; vertical-align: top;"><strong>Paper Numbers:</strong></td>
+                    <td style="padding: 8px;">
+                        {% for paper in registration.papers.all %}
+                            {{ paper.paper_number }}{% if paper.is_additional %} <em>(Additional)</em>{% endif %}{% if not forloop.last %}<br>{% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
+            <h3 style="color: #28a745; margin-top: 0;">Accommodation Requirements</h3>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; width: 35%;"><strong>Room Type:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                        {% if registration.room_type %}
+                            {{ registration.get_room_type_display }}
+                        {% else %}
+                            No accommodation requested
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if registration.room_type %}
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Number of Nights:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.number_of_nights }} nights</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Accommodation Timing:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                        {% if registration.accommodation_timing %}
+                            {{ registration.get_accommodation_timing_display }}
+                        {% else %}
+                            Standard conference period
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Rate:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                        {% if registration.location == 'abroad' %}
+                            {% if registration.room_type == 'single' %}€70/night{% else %}€84/night{% endif %} (Conference Rate)
+                        {% else %}
+                            {% if registration.room_type == 'single' %}10,500 DA/night{% else %}12,500 DA/night{% endif %} (Conference Rate)
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td style="padding: 8px;"><strong>Accompanying Person:</strong></td>
+                    <td style="padding: 8px;">
+                        {% if registration.accompanying_person %}
+                            <span style="color: #28a745; font-weight: bold;">{{ registration.accompanying_person.name }}</span>
+                            {% if registration.accompanying_person.national_id %}
+                                <br><small>ID: {{ registration.accompanying_person.national_id }}</small>
+                            {% endif %}
+                        {% else %}
+                            None
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        
+        {% if registration.tutorial_full_day or registration.tutorial_period %}
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #FF9800;">
+            <h3 style="color: #E65100; margin-top: 0;">Tutorial Registration</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                {% if registration.tutorial_full_day %}
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; width: 35%;"><strong>Full Day Tutorial:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">✓ Registered</td>
+                </tr>
+                {% endif %}
+                {% if registration.tutorial_period %}
+                <tr>
+                    <td style="padding: 8px;"><strong>Tutorial Per Period:</strong></td>
+                    <td style="padding: 8px;">✓ Registered</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        {% endif %}
+        
+        {% if registration.welcome_dinner or registration.dinner or registration.gala_dinner or registration.lunch or registration.social_program or registration.accompanying_person %}
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+            <h3 style="color: #856404; margin-top: 0;">Catering & Events</h3>
+            
+            <h4 style="margin-bottom: 10px;">Main Participant ({{ registration.get_full_name }}):</h4>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                {% if registration.welcome_dinner %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee; width: 50%;">Welcome Dinner - December 15th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">
+                        ✓ Registered
+                        {% if registration.welcome_dinner_menu %}
+                            <br><small>Menu: {{ registration.get_welcome_dinner_menu_display }}</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if registration.dinner %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Dinner - December 16th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">
+                        ✓ Registered
+                        {% if registration.dinner_menu %}
+                            <br><small>Menu: {{ registration.get_dinner_menu_display }}</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if registration.gala_dinner %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Gala Dinner - December 17th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">
+                        ✓ Registered
+                        {% if registration.gala_dinner_menu %}
+                            <br><small>Menu: {{ registration.get_gala_dinner_menu_display }}</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if registration.lunch %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Conference Lunch</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">✓ Registered</td>
+                </tr>
+                {% endif %}
+                {% if registration.social_program %}
+                <tr>
+                    <td style="padding: 5px;">Cultural Visit - December 18th</td>
+                    <td style="padding: 5px;">✓ Registered</td>
+                </tr>
+                {% endif %}
+                {% if not registration.welcome_dinner and not registration.dinner and not registration.gala_dinner and not registration.lunch and not registration.social_program %}
+                <tr>
+                    <td style="padding: 5px;" colspan="2">No special events requested</td>
+                </tr>
+                {% endif %}
+            </table>
+            
+            {% if registration.accompanying_person %}
+            <h4 style="margin-bottom: 10px; margin-top: 15px;">Accompanying Person ({{ registration.accompanying_person.name }}):</h4>
+            <table style="width: 100%; border-collapse: collapse;">
+                {% with accompanying=registration.accompanying_person %}
+                {% if accompanying.welcome_dinner %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee; width: 50%;">Welcome Dinner - December 15th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">
+                        ✓ Registered
+                        {% if accompanying.welcome_dinner_menu %}
+                            <br><small>Menu: {{ accompanying.get_welcome_dinner_menu_display }}</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if accompanying.dinner %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Dinner - December 16th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">
+                        ✓ Registered
+                        {% if accompanying.dinner_menu %}
+                            <br><small>Menu: {{ accompanying.get_dinner_menu_display }}</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if accompanying.gala_dinner %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Gala Dinner - December 17th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">
+                        ✓ Registered
+                        {% if accompanying.gala_dinner_menu %}
+                            <br><small>Menu: {{ accompanying.get_gala_dinner_menu_display }}</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if accompanying.welcome_lunch %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Welcome Lunch - December 15th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">✓ Registered</td>
+                </tr>
+                {% endif %}
+                {% if accompanying.lunch_16 %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Lunch - December 16th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">✓ Registered</td>
+                </tr>
+                {% endif %}
+                {% if accompanying.lunch_17 %}
+                <tr>
+                    <td style="padding: 5px;">Lunch - December 17th</td>
+                    <td style="padding: 5px;">✓ Registered</td>
+                </tr>
+                {% endif %}
+                {% if not accompanying.welcome_dinner and not accompanying.dinner and not accompanying.gala_dinner and not accompanying.welcome_lunch and not accompanying.lunch_16 and not accompanying.lunch_17 %}
+                <tr>
+                    <td style="padding: 5px;" colspan="2">No special events requested</td>
+                </tr>
+                {% endif %}
+                {% endwith %}
+            </table>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% if registration.special_requirements %}
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+            <h3 style="color: #856404; margin-top: 0;">Special Requirements</h3>
+            <p style="margin: 0;">{{ registration.special_requirements }}</p>
+        </div>
+        {% endif %}
+        
+        <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4CAF50;">
+            <h3 style="color: #4CAF50; margin-top: 0;">Conference Information</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee; width: 30%;"><strong>Event:</strong></td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">International Conference on Fractional Differentiation and its Applications (ICFDA 2025)</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;"><strong>Dates:</strong></td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">December 15-18, 2025</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;"><strong>Venue:</strong></td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Hotel Mercure Alger Bab Ezzouar</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;"><strong>Registration Period:</strong></td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">{{ registration.get_registration_period_display }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;"><strong>Total Amount:</strong></td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">
+                        {% if registration.currency == 'EUR' %}
+                            €{{ registration.total_amount }}
+                        {% else %}
+                            {{ registration.total_amount|floatformat:0 }} DA
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px;"><strong>Payment Status:</strong></td>
+                    <td style="padding: 5px;">{{ registration.get_payment_status_display }}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
+            <h3 style="color: #155724; margin-top: 0;">Action Required</h3>
+            <p>Please:</p>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+                <li>Process this reservation at conference rates</li>
+                <li>Send confirmation directly to the guest: <strong>{{ registration.email }}</strong></li>
+                <li>CC conference organizers on the confirmation</li>
+                <li>Note any special requirements in the reservation system</li>
+                {% if registration.accompanying_person %}
+                <li>Ensure accommodation includes space for accompanying person: <strong>{{ registration.accompanying_person.name }}</strong></li>
+                {% endif %}
+            </ol>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <p style="color: #666; font-size: 14px;">
+                ICFDA 2025 Conference Organization Committee<br>
+                International Conference on Fractional Differentiation and its Applications<br>
+                December 15-18, 2025, Algiers, Algeria<br>
+                Email: <a href="mailto:samir.ladaci@g.enp.edu.dz" style="color: #4CAF50;">samir.ladaci@g.enp.edu.dz</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

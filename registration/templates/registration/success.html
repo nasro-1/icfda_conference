@@ -1,0 +1,669 @@
+<!-- registration/templates/registration/success.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICFDA 2025 - Registration Successful</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: #4CAF50;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .info-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 5px solid #4CAF50;
+        }
+        
+        .info-card h3 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 35%;
+        }
+        
+        .value {
+            color: #212529;
+            flex: 1;
+            text-align: right;
+        }
+        
+        .fee-code {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 30px 0;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-processing {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .amount-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .next-steps {
+            background: #e7f7e8;
+            border-left: 5px solid #4CAF50;
+            padding: 25px;
+            margin-top: 30px;
+            border-radius: 10px;
+        }
+        
+        .next-steps h3 {
+            margin-top: 0;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+        
+        .next-steps ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .next-steps li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            margin: 10px;
+            transition: transform 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .bank-details {
+            background: #fff8e1;
+            border: 2px solid #ffcc02;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+        }
+        
+        .bank-details h4 {
+            color: #f57f17;
+            margin-bottom: 20px;
+        }
+        
+        .bank-details table {
+            width: 100%;
+            margin-bottom: 20px;
+            border-collapse: collapse;
+        }
+        
+        .bank-details td {
+            padding: 10px;
+            border-bottom: 1px solid #ffcc02;
+        }
+        
+        .bank-details td:first-child {
+            font-weight: 600;
+            width: 35%;
+            color: #f57f17;
+        }
+        
+        .important-note {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+        
+        .meal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .meal-item:last-child {
+            border-bottom: none;
+        }
+        
+        .meal-name {
+            font-weight: 500;
+        }
+        
+        .meal-menu {
+            font-size: 0.9em;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .checkmark {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .row {
+            display: flex;
+            gap: 25px;
+        }
+        
+        .col {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .value {
+                text-align: left;
+                margin-top: 5px;
+            }
+            
+            .row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+            }
+            .btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="success-icon">✓</div>
+            <h1>Thank You!</h1>
+            <p>Your registration for ICFDA 2025 has been submitted successfully.</p>
+            <p style="margin-top: 10px; font-size: 1em;">International Conference on Fractional Differentiation and its Applications</p>
+            <p style="font-size: 1em;">December 15-18, 2025 - Algiers, Algeria</p>
+        </div>
+        
+        <div class="content">
+            <div class="fee-code">
+                Fee Code: {{ registration.fee_code }}
+            </div>
+            
+            <!-- Personal Information -->
+            <div class="info-card">
+                <h3>Registration Details</h3>
+                <div class="info-row">
+                    <span class="label">Registration ID:</span>
+                    <span class="value">{{ registration.registration_id }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Full Name:</span>
+                    <span class="value">{{ registration.get_full_name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Email:</span>
+                    <span class="value">{{ registration.email }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Phone:</span>
+                    <span class="value">{{ registration.phone }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Institution:</span>
+                    <span class="value">{{ registration.institution }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Country:</span>
+                    <span class="value">{{ registration.country }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">National ID:</span>
+                    <span class="value">{{ registration.national_id }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Registration Type:</span>
+                    <span class="value">{{ registration.get_registration_type_display }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Registration Location:</span>
+                    <span class="value">{{ registration.get_location_display }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Registration Period:</span>
+                    <span class="value">{{ registration.get_registration_period_display }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Total Amount:</span>
+                    <span class="value amount-display">
+                        {% if registration.currency == 'EUR' %}
+                            €{{ registration.total_amount }}
+                        {% else %}
+                            {{ registration.total_amount|floatformat:0 }} DA
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Payment Status:</span>
+                    <span class="value">
+                        <span class="status-badge status-{{ registration.payment_status }}">
+                            {{ registration.get_payment_status_display }}
+                        </span>
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Paper Information -->
+            {% if registration.papers.exists %}
+            <div class="info-card">
+                <h3>Registered Papers</h3>
+                <div class="info-row">
+                    <span class="label">Number of Papers:</span>
+                    <span class="value">{{ registration.papers.count }}</span>
+                </div>
+                {% for paper in registration.papers.all %}
+                <div class="info-row">
+                    <span class="label">Paper {{ forloop.counter }}:</span>
+                    <span class="value">
+                        {{ paper.paper_number }}
+                        {% if paper.is_additional %}
+                            <span style="color: #dc3545; font-size: 0.9em;">(Additional)</span>
+                        {% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Tutorial Information -->
+            {% if registration.tutorial_full_day or registration.tutorial_period %}
+            <div class="info-card">
+                <h3>Tutorial Registration</h3>
+                {% if registration.tutorial_full_day %}
+                <div class="info-row">
+                    <span class="label">Full Day Tutorial:</span>
+                    <span class="value checkmark">✓ Registered</span>
+                </div>
+                {% endif %}
+                {% if registration.tutorial_period %}
+                <div class="info-row">
+                    <span class="label">Tutorial Per Period:</span>
+                    <span class="value checkmark">✓ Registered</span>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- Catering & Events -->
+            {% if registration.welcome_dinner or registration.dinner or registration.gala_dinner or registration.lunch or registration.social_program %}
+            <div class="info-card">
+                <h3>Catering & Events</h3>
+                {% if registration.welcome_dinner %}
+                <div class="meal-item">
+                    <div>
+                        <div class="meal-name">Welcome Dinner - December 15th</div>
+                        {% if registration.welcome_dinner_menu %}
+                        <div class="meal-menu">Menu: {{ registration.get_welcome_dinner_menu_display }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="checkmark">✓</div>
+                </div>
+                {% endif %}
+                {% if registration.dinner %}
+                <div class="meal-item">
+                    <div>
+                        <div class="meal-name">Dinner - December 16th</div>
+                        {% if registration.dinner_menu %}
+                        <div class="meal-menu">Menu: {{ registration.get_dinner_menu_display }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="checkmark">✓</div>
+                </div>
+                {% endif %}
+                {% if registration.gala_dinner %}
+                <div class="meal-item">
+                    <div>
+                        <div class="meal-name">Gala Dinner - December 17th</div>
+                        {% if registration.gala_dinner_menu %}
+                        <div class="meal-menu">Menu: {{ registration.get_gala_dinner_menu_display }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="checkmark">✓</div>
+                </div>
+                {% endif %}
+                {% if registration.lunch %}
+                <div class="meal-item">
+                    <div class="meal-name">Conference Lunch</div>
+                    <div class="checkmark">✓</div>
+                </div>
+                {% endif %}
+                {% if registration.social_program %}
+                <div class="meal-item">
+                    <div class="meal-name">Cultural Visit of Algiers - December 18th</div>
+                    <div class="checkmark">✓</div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- Accommodation -->
+            {% if registration.room_type %}
+            <div class="info-card">
+                <h3>Accommodation</h3>
+                <div class="info-row">
+                    <span class="label">Hotel:</span>
+                    <span class="value">Hotel Mercure Alger Bab Ezzouar</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Room Type:</span>
+                    <span class="value">{{ registration.get_room_type_display }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Number of Nights:</span>
+                    <span class="value">{{ registration.number_of_nights }}</span>
+                </div>
+                {% if registration.accommodation_timing %}
+                <div class="info-row">
+                    <span class="label">Timing:</span>
+                    <span class="value">{{ registration.get_accommodation_timing_display }}</span>
+                </div>
+                {% endif %}
+                <div class="info-row">
+                    <span class="label">Rate per Night:</span>
+                    <span class="value">
+                        {% if registration.location == 'abroad' %}
+                            {% if registration.room_type == 'single' %}€70{% else %}€84{% endif %} (Special ICFDA Rate)
+                        {% else %}
+                            {% if registration.room_type == 'single' %}10,500 DA{% else %}12,500 DA{% endif %} (Special ICFDA Rate)
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Accompanying Person -->
+            {% if registration.accompanying_person %}
+            <div class="info-card">
+                <h3>Accompanying Person</h3>
+                <div class="info-row">
+                    <span class="label">Name:</span>
+                    <span class="value">{{ registration.accompanying_person.name }}</span>
+                </div>
+                {% if registration.accompanying_person.national_id %}
+                <div class="info-row">
+                    <span class="label">National ID:</span>
+                    <span class="value">{{ registration.accompanying_person.national_id }}</span>
+                </div>
+                {% endif %}
+                
+                {% with accompanying=registration.accompanying_person %}
+                {% if accompanying.welcome_dinner or accompanying.dinner or accompanying.gala_dinner %}
+                <div style="margin-top: 20px;">
+                    <h4 style="color: #4CAF50; margin-bottom: 15px;">Dinner Events:</h4>
+                    {% if accompanying.welcome_dinner %}
+                    <div class="meal-item">
+                        <div>
+                            <div class="meal-name">Welcome Dinner - December 15th</div>
+                            {% if accompanying.welcome_dinner_menu %}
+                            <div class="meal-menu">Menu: {{ accompanying.get_welcome_dinner_menu_display }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="checkmark">✓</div>
+                    </div>
+                    {% endif %}
+                    {% if accompanying.dinner %}
+                    <div class="meal-item">
+                        <div>
+                            <div class="meal-name">Dinner - December 16th</div>
+                            {% if accompanying.dinner_menu %}
+                            <div class="meal-menu">Menu: {{ accompanying.get_dinner_menu_display }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="checkmark">✓</div>
+                    </div>
+                    {% endif %}
+                    {% if accompanying.gala_dinner %}
+                    <div class="meal-item">
+                        <div>
+                            <div class="meal-name">Gala Dinner - December 17th</div>
+                            {% if accompanying.gala_dinner_menu %}
+                            <div class="meal-menu">Menu: {{ accompanying.get_gala_dinner_menu_display }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="checkmark">✓</div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                {% if accompanying.welcome_lunch or accompanying.lunch_16 or accompanying.lunch_17 %}
+                <div style="margin-top: 20px;">
+                    <h4 style="color: #4CAF50; margin-bottom: 15px;">Lunch Events:</h4>
+                    {% if accompanying.welcome_lunch %}
+                    <div class="meal-item">
+                        <div class="meal-name">Welcome Lunch - December 15th</div>
+                        <div class="checkmark">✓</div>
+                    </div>
+                    {% endif %}
+                    {% if accompanying.lunch_16 %}
+                    <div class="meal-item">
+                        <div class="meal-name">Lunch - December 16th</div>
+                        <div class="checkmark">✓</div>
+                    </div>
+                    {% endif %}
+                    {% if accompanying.lunch_17 %}
+                    <div class="meal-item">
+                        <div class="meal-name">Lunch - December 17th</div>
+                        <div class="checkmark">✓</div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+            {% endif %}
+            
+            <!-- Special Requirements -->
+            {% if registration.special_requirements %}
+            <div class="info-card">
+                <h3>Special Requirements</h3>
+                <p style="margin: 0; line-height: 1.6;">{{ registration.special_requirements }}</p>
+            </div>
+            {% endif %}
+            
+            <!-- Payment Instructions -->
+            {% if registration.payment_status == 'pending' and registration.total_amount > 0 %}
+            <div class="bank-details">
+                <h4>Payment Instructions</h4>
+                <p><strong>Bank Transfer Details:</strong></p>
+                <table>
+                    <tr><td>Bank:</td><td>Crédit Populaire d'Algérie (CPA)</td></tr>
+                    <tr><td>Branch:</td><td>Agence 146 Bab Ezzouar</td></tr>
+                    <tr><td>Account Holder:</td><td>EGT CENTRE GRAND HOTEL MERCURE</td></tr>
+                    <tr><td>SWIFT Code:</td><td>CPALDZAL</td></tr>
+                    {% if registration.currency == 'EUR' %}
+                    <tr><td>RIB:</td><td>00400146520817019018</td></tr>
+                    <tr><td>IBAN:</td><td>DZ 00400146520817019018</td></tr>
+                    {% elif registration.currency == 'USD' %}
+                    <tr><td>RIB:</td><td>00400146520817013974</td></tr>
+                    <tr><td>IBAN:</td><td>DZ 00400146520817013974</td></tr>
+                    {% else %}
+                    <tr><td>RIB:</td><td>00400146401708170149</td></tr>
+                    <tr><td>IBAN:</td><td>DZ 00400146401708170149</td></tr>
+                    {% endif %}
+                </table>
+                
+                <div class="important-note">
+                    <strong>IMPORTANT:</strong> Please include your fee code <strong>{{ registration.fee_code }}</strong> 
+                    in the transfer reference/memo field and send the transfer receipt to 
+                    <strong>samir.ladaci@g.enp.edu.dz</strong>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Next Steps -->
+            <div class="next-steps">
+                <h3>Next Steps</h3>
+                <ul>
+                    <li>You will receive a confirmation email shortly with all registration details.</li>
+                    {% if registration.payment_status == 'pending' and registration.total_amount > 0 %}
+                    <li>Please complete the payment using the bank details provided above.</li>
+                    <li>Send your payment receipt to <strong>samir.ladaci@g.enp.edu.dz</strong> with your fee code <strong>{{ registration.fee_code }}</strong>.</li>
+                    {% endif %}
+                    {% if registration.location == 'abroad' and registration.room_type and registration.payment_status == 'completed' %}
+                    <li>Hotel reservation details will be sent to you and the hotel directly.</li>
+                    {% endif %}
+                    {% if registration.room_type %}
+                    <li>Accommodation has been requested at Hotel Mercure with special conference rates.</li>
+                    {% endif %}
+                    <li>Keep your fee code <strong>{{ registration.fee_code }}</strong> for future reference.</li>
+                    <li>For questions, contact: <strong>samir.ladaci@g.enp.edu.dz</strong></li>
+                    <li>Conference website: <strong>https://conferences.ifac-control.org/icfda2025/</strong></li>
+                    <li>Check your email regularly for updates and additional conference information.</li>
+                </ul>
+            </div>
+            
+            <!-- Special Notes -->
+            {% if registration.registration_type == 'visitor' %}
+            <div class="info-card">
+                <h3>Visitor Registration Note</h3>
+                <p style="line-height: 1.6;">As a visitor, you have free access to the conference sessions. You can upgrade to full registration 
+                at any time by contacting the organizing committee if you wish to submit papers or access tutorials.</p>
+            </div>
+            {% endif %}
+            
+            {% if registration.location == 'abroad' %}
+            <div class="info-card">
+                <h3>International Participant Information</h3>
+                <p style="line-height: 1.6;">As an international participant, please ensure you have proper travel documentation. 
+                Visa assistance letters can be provided upon request. Contact the organizing committee for travel and visa support.</p>
+            </div>
+            {% endif %}
+            
+            <!-- Action Buttons -->
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="javascript:window.print()" class="btn">Print This Page</a>
+                <a href="/" class="btn">Return to Home</a>
+                {% if registration.payment_status == 'pending' and registration.payment_method == 'stripe' and registration.total_amount > 0 %}
+                <a href="{% url 'registration:payment' registration.registration_id %}" class="btn">Complete Payment Online</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

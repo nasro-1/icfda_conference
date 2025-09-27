@@ -1,0 +1,447 @@
+<!-- registration/templates/registration/payment.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICFDA 2025 - Complete Payment</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .summary-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #667eea;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #667eea;
+        }
+        
+        .bank-transfer {
+            background: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .bank-transfer h3 {
+            color: #667eea;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        
+        .bank-details table {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .bank-details td {
+            padding: 8px;
+            border-bottom: 1px solid #b3d7ff;
+        }
+        
+        .bank-details td:first-child {
+            font-weight: 600;
+            width: 35%;
+        }
+        
+        .important-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .important-note strong {
+            color: #856404;
+        }
+        
+        #card-element {
+            background: white;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        #card-errors {
+            color: #dc3545;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .btn:hover {
+            transform: scale(1.02);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .payment-methods {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .payment-method {
+            flex: 1;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .payment-method.active {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .payment-method h4 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        
+        .payment-section {
+            display: none;
+        }
+        
+        .payment-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Complete Your Payment</h2>
+            <p>ICFDA 2025 Registration</p>
+        </div>
+        
+        <div class="content">
+            <div class="summary">
+                <h3>Registration Summary</h3>
+                <div class="summary-row">
+                    <span>Name:</span>
+                    <span>{{ registration.get_full_name }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Registration Type:</span>
+                    <span>{{ registration.get_registration_type_display }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Registration Period:</span>
+                    <span>{{ registration.get_registration_period_display }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Fee Code:</span>
+                    <span>{{ registration.fee_code }}</span>
+                </div>
+                {% if papers %}
+                <div class="summary-row">
+                    <span>Papers:</span>
+                    <span>{{ papers|length }} paper(s)</span>
+                </div>
+                {% endif %}
+                {% if accompanying_person %}
+                <div class="summary-row">
+                    <span>Accompanying Person:</span>
+                    <span>{{ accompanying_person.name }}</span>
+                </div>
+                {% endif %}
+                <div class="summary-row">
+                    <span>Total Amount:</span>
+                    <span>
+                        {% if registration.currency == 'EUR' %}
+                            €{{ registration.total_amount }}
+                        {% elif registration.currency == 'USD' %}
+                            ${{ registration.total_amount }}
+                        {% else %}
+                            {{ registration.total_amount|floatformat:0 }} DA
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Payment Method Selection -->
+            {% if registration.payment_method == 'stripe' %}
+            <div class="payment-methods">
+                <div class="payment-method active" onclick="selectPaymentMethod('card', this)">
+                    <h4>Credit/Debit Card</h4>
+                    <p>Pay online securely with Stripe</p>
+                </div>
+                <div class="payment-method" onclick="selectPaymentMethod('transfer', this)">
+                    <h4>Bank Transfer</h4>
+                    <p>Transfer to our bank account</p>
+                </div>
+            </div>
+            
+            <!-- Card Payment Section -->
+            <div class="payment-section active" id="card-payment">
+                <div class="alert alert-info">
+                    Please enter your payment details below. Your card will be charged immediately.
+                </div>
+                
+                <form id="payment-form">
+                    <div id="card-element">
+                        <!-- Stripe card element will be inserted here -->
+                    </div>
+                    <div id="card-errors"></div>
+                    
+                    <button type="submit" class="btn" id="submit-payment">
+                        <span id="button-text">Pay Now</span>
+                        <span class="spinner" id="spinner" style="display: none;"></span>
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Bank Transfer Section -->
+            <div class="payment-section" id="transfer-payment">
+            {% else %}
+            <!-- Bank Transfer Only -->
+            <div class="payment-section active" id="transfer-payment">
+            {% endif %}
+                <div class="bank-transfer">
+                    <h3>Bank Transfer Details</h3>
+                    <div class="bank-details">
+                        <table>
+                            <tr><td>Bank:</td><td>{{ bank_details.bank }}</td></tr>
+                            <tr><td>Branch:</td><td>{{ bank_details.branch }}</td></tr>
+                            <tr><td>Account Holder:</td><td>{{ bank_details.account_holder }}</td></tr>
+                            <tr><td>Account Type:</td><td>{{ bank_details.account_type }}</td></tr>
+                            <tr><td>RIB:</td><td>{{ bank_details.rib }}</td></tr>
+                            <tr><td>IBAN:</td><td>{{ bank_details.full_iban }}</td></tr>
+                            <tr><td>SWIFT Code:</td><td>{{ bank_details.swift }}</td></tr>
+                        </table>
+                        
+                        <div class="important-note">
+                            <strong>IMPORTANT INSTRUCTIONS:</strong>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                <li>Include your fee code <strong>{{ registration.fee_code }}</strong> in the transfer reference/memo</li>
+                                <li>Send the transfer receipt to <strong>icfda2025@conference.org</strong></li>
+                                <li>Payment confirmation will be sent once receipt is verified</li>
+                                <li>Allow 2-3 business days for processing</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn" onclick="markTransferInitiated()">
+                        I Have Initiated the Transfer
+                    </button>
+                </div>
+            {% if registration.payment_method == 'stripe' %}</div>{% endif %}
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="{% url 'registration:success' registration.registration_id %}" class="btn btn-secondary">
+                    Return to Registration Details
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    {% if registration.payment_method == 'stripe' %}
+    <script>
+        // Initialize Stripe
+        const stripe = Stripe('{{ stripe_public_key }}');
+        const elements = stripe.elements();
+        
+        // Create card element
+        const cardElement = elements.create('card', {
+            style: {
+                base: {
+                    fontSize: '16px',
+                    color: '#32325d',
+                    '::placeholder': {
+                        color: '#aab7c4'
+                    }
+                }
+            }
+        });
+        
+        cardElement.mount('#card-element');
+        
+        // Handle card errors
+        cardElement.addEventListener('change', function(event) {
+            const displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+        
+        // Handle form submission
+        const form = document.getElementById('payment-form');
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const submitButton = document.getElementById('submit-payment');
+            const buttonText = document.getElementById('button-text');
+            const spinner = document.getElementById('spinner');
+            
+            // Disable button and show spinner
+            submitButton.disabled = true;
+            buttonText.textContent = 'Processing...';
+            spinner.style.display = 'inline-block';
+            
+            // Confirm payment
+            const {error} = await stripe.confirmCardPayment('{{ client_secret }}', {
+                payment_method: {
+                    card: cardElement,
+                    billing_details: {
+                        name: '{{ registration.get_full_name }}',
+                        email: '{{ registration.email }}'
+                    }
+                }
+            });
+            
+            if (error) {
+                // Show error to customer
+                const errorElement = document.getElementById('card-errors');
+                errorElement.textContent = error.message;
+                
+                // Re-enable button
+                submitButton.disabled = false;
+                buttonText.textContent = 'Pay Now';
+                spinner.style.display = 'none';
+            } else {
+                // Payment succeeded, redirect to success page
+                window.location.href = '{% url "registration:success" registration.registration_id %}';
+            }
+        });
+        
+        // Payment method selection
+        function selectPaymentMethod(method, element) {
+            // Update active payment method
+            document.querySelectorAll('.payment-method').forEach(pm => {
+                pm.classList.remove('active');
+            });
+            element.classList.add('active');
+            
+            // Show appropriate payment section
+            document.querySelectorAll('.payment-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(method + '-payment').classList.add('active');
+        }
+    </script>
+    {% endif %}
+    
+    <script>
+        function markTransferInitiated() {
+            if (confirm('Have you completed the bank transfer and included your fee code {{ registration.fee_code }} in the reference?')) {
+                // You could make an API call here to update the status
+                alert('Thank you! Please send your transfer receipt to icfda2025@conference.org. Your registration will be confirmed once payment is verified.');
+                window.location.href = '{% url "registration:success" registration.registration_id %}';
+            }
+        }
+    </script>
+</body>
+</html>
