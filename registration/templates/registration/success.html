@@ -333,7 +333,7 @@
                     <span class="value">{{ registration.country }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">National ID:</span>
+                    <span class="label">{% if registration.location == 'abroad' %}Passport Number{% else %}National ID{% endif %}:</span>
                     <span class="value">{{ registration.national_id }}</span>
                 </div>
                 <div class="info-row">
@@ -397,13 +397,21 @@
                 {% if registration.tutorial_full_day %}
                 <div class="info-row">
                     <span class="label">Full Day Tutorial:</span>
-                    <span class="value checkmark">✓ Registered</span>
+                    <span class="value checkmark">✓ Registered
+                        {% if registration.location == 'algeria' %}
+                            <span style="color: #666; font-size: 0.9em;">(12,000 DA)</span>
+                        {% endif %}
+                    </span>
                 </div>
                 {% endif %}
                 {% if registration.tutorial_period %}
                 <div class="info-row">
                     <span class="label">Tutorial Per Period:</span>
-                    <span class="value checkmark">✓ Registered</span>
+                    <span class="value checkmark">✓ Registered
+                        {% if registration.location == 'algeria' %}
+                            <span style="color: #666; font-size: 0.9em;">(7,000 DA)</span>
+                        {% endif %}
+                    </span>
                 </div>
                 {% endif %}
             </div>
@@ -442,6 +450,9 @@
                         {% if registration.gala_dinner_menu %}
                         <div class="meal-menu">Menu: {{ registration.get_gala_dinner_menu_display }}</div>
                         {% endif %}
+                        {% if registration.location == 'abroad' %}
+                        <div class="meal-menu" style="color: #4CAF50;">Price: €45</div>
+                        {% endif %}
                     </div>
                     <div class="checkmark">✓</div>
                 </div>
@@ -454,7 +465,12 @@
                 {% endif %}
                 {% if registration.social_program %}
                 <div class="meal-item">
-                    <div class="meal-name">Cultural Visit of Algiers - December 18th</div>
+                    <div>
+                        <div class="meal-name">Cultural Visit of Algiers - December 18th</div>
+                        {% if registration.location == 'algeria' %}
+                        <div class="meal-menu" style="color: #4CAF50;">Price: 500 DA</div>
+                        {% endif %}
+                    </div>
                     <div class="checkmark">✓</div>
                 </div>
                 {% endif %}
@@ -473,16 +489,22 @@
                     <span class="label">Room Type:</span>
                     <span class="value">{{ registration.get_room_type_display }}</span>
                 </div>
+                {% if registration.check_in_date %}
+                <div class="info-row">
+                    <span class="label">Check-in Date:</span>
+                    <span class="value">{{ registration.check_in_date }}</span>
+                </div>
+                {% endif %}
+                {% if registration.check_out_date %}
+                <div class="info-row">
+                    <span class="label">Check-out Date:</span>
+                    <span class="value">{{ registration.check_out_date }}</span>
+                </div>
+                {% endif %}
                 <div class="info-row">
                     <span class="label">Number of Nights:</span>
                     <span class="value">{{ registration.number_of_nights }}</span>
                 </div>
-                {% if registration.accommodation_timing %}
-                <div class="info-row">
-                    <span class="label">Timing:</span>
-                    <span class="value">{{ registration.get_accommodation_timing_display }}</span>
-                </div>
-                {% endif %}
                 <div class="info-row">
                     <span class="label">Rate per Night:</span>
                     <span class="value">
@@ -506,7 +528,7 @@
                 </div>
                 {% if registration.accompanying_person.national_id %}
                 <div class="info-row">
-                    <span class="label">National ID:</span>
+                    <span class="label">{% if registration.location == 'abroad' %}Passport Number{% else %}National ID{% endif %}:</span>
                     <span class="value">{{ registration.accompanying_person.national_id }}</span>
                 </div>
                 {% endif %}
@@ -551,15 +573,9 @@
                 </div>
                 {% endif %}
                 
-                {% if accompanying.welcome_lunch or accompanying.lunch_16 or accompanying.lunch_17 %}
+                {% if accompanying.lunch_16 or accompanying.lunch_17 or accompanying.lunch_18 %}
                 <div style="margin-top: 20px;">
                     <h4 style="color: #4CAF50; margin-bottom: 15px;">Lunch Events:</h4>
-                    {% if accompanying.welcome_lunch %}
-                    <div class="meal-item">
-                        <div class="meal-name">Welcome Lunch - December 15th</div>
-                        <div class="checkmark">✓</div>
-                    </div>
-                    {% endif %}
                     {% if accompanying.lunch_16 %}
                     <div class="meal-item">
                         <div class="meal-name">Lunch - December 16th</div>
@@ -569,6 +585,12 @@
                     {% if accompanying.lunch_17 %}
                     <div class="meal-item">
                         <div class="meal-name">Lunch - December 17th</div>
+                        <div class="checkmark">✓</div>
+                    </div>
+                    {% endif %}
+                    {% if accompanying.lunch_18 %}
+                    <div class="meal-item">
+                        <div class="meal-name">Lunch - December 18th</div>
                         <div class="checkmark">✓</div>
                     </div>
                     {% endif %}
@@ -588,6 +610,24 @@
             
             <!-- Payment Instructions -->
             {% if registration.payment_status == 'pending' and registration.total_amount > 0 %}
+            {% if registration.location == 'abroad' %}
+            <div class="bank-details">
+                <h4>Payment Instructions - Participants Outside Algeria</h4>
+                <p><strong>The hotel team will contact you soon regarding your payment. They will send you a secure payment link from the following emails:</strong></p>
+                <ul style="margin: 15px 0; padding-left: 20px; line-height: 1.6;">
+                    <li><strong>lynda.kaci@accor.com</strong></li>
+                    <li><strong>H3173-re@accor.com</strong></li>
+                    <li><strong>Amir.BENSAADA@accor.com</strong></li>
+                    <li><strong>Nabil.OULDYAHIA@accor.com</strong></li>
+                </ul>
+                
+                <div class="important-note">
+                    <strong>IMPORTANT:</strong> Please include your fee code <strong>{{ registration.fee_code }}</strong> 
+                    in the transfer reference/memo field. After completing the transfer, kindly send the receipt to 
+                    <strong>samir.ladaci@g.enp.edu.dz</strong>
+                </div>
+            </div>
+            {% else %}
             <div class="bank-details">
                 <h4>Payment Instructions</h4>
                 <p><strong>Bank Transfer Details:</strong></p>
@@ -596,16 +636,8 @@
                     <tr><td>Branch:</td><td>Agence 146 Bab Ezzouar</td></tr>
                     <tr><td>Account Holder:</td><td>EGT CENTRE GRAND HOTEL MERCURE</td></tr>
                     <tr><td>SWIFT Code:</td><td>CPALDZAL</td></tr>
-                    {% if registration.currency == 'EUR' %}
-                    <tr><td>RIB:</td><td>00400146520817019018</td></tr>
-                    <tr><td>IBAN:</td><td>DZ 00400146520817019018</td></tr>
-                    {% elif registration.currency == 'USD' %}
-                    <tr><td>RIB:</td><td>00400146520817013974</td></tr>
-                    <tr><td>IBAN:</td><td>DZ 00400146520817013974</td></tr>
-                    {% else %}
-                    <tr><td>RIB:</td><td>00400146401708170149</td></tr>
+                    <tr><td>RIB DZD:</td><td>00400146401708170149</td></tr>
                     <tr><td>IBAN:</td><td>DZ 00400146401708170149</td></tr>
-                    {% endif %}
                 </table>
                 
                 <div class="important-note">
@@ -615,6 +647,7 @@
                 </div>
             </div>
             {% endif %}
+            {% endif %}
             
             <!-- Next Steps -->
             <div class="next-steps">
@@ -622,8 +655,14 @@
                 <ul>
                     <li>You will receive a confirmation email shortly with all registration details.</li>
                     {% if registration.payment_status == 'pending' and registration.total_amount > 0 %}
-                    <li>Please complete the payment using the bank details provided above.</li>
-                    <li>Send your payment receipt to <strong>samir.ladaci@g.enp.edu.dz</strong> with your fee code <strong>{{ registration.fee_code }}</strong>.</li>
+                        {% if registration.location == 'abroad' %}
+                        <li>The hotel team will contact you soon with a secure payment link from one of these emails: lynda.kaci@accor.com, H3173-re@accor.com, Amir.BENSAADA@accor.com, or Nabil.OULDYAHIA@accor.com</li>
+                        <li>When making payment, please include your fee code <strong>{{ registration.fee_code }}</strong> in the reference field.</li>
+                        <li>After completing payment, send the receipt to <strong>samir.ladaci@g.enp.edu.dz</strong></li>
+                        {% else %}
+                        <li>Please complete the payment using the bank details provided above.</li>
+                        <li>Send your payment receipt to <strong>samir.ladaci@g.enp.edu.dz</strong> with your fee code <strong>{{ registration.fee_code }}</strong>.</li>
+                        {% endif %}
                     {% endif %}
                     {% if registration.location == 'abroad' and registration.room_type and registration.payment_status == 'completed' %}
                     <li>Hotel reservation details will be sent to you and the hotel directly.</li>
@@ -639,11 +678,16 @@
             </div>
             
             <!-- Special Notes -->
-            {% if registration.registration_type == 'visitor' %}
+            {% if registration.registration_type == 'without_paper' %}
             <div class="info-card">
-                <h3>Visitor Registration Note</h3>
-                <p style="line-height: 1.6;">As a visitor, you have free access to the conference sessions. You can upgrade to full registration 
-                at any time by contacting the organizing committee if you wish to submit papers or access tutorials.</p>
+                <h3>Registration without Paper Note</h3>
+                <p style="line-height: 1.6;">
+                    {% if registration.location == 'abroad' %}
+                        As a registration without paper participant (€250), you have access to the conference sessions but paper submission is not included. You can upgrade to full registration at any time by contacting the organizing committee.
+                    {% else %}
+                        As a registration without paper participant (20,000 DA), you have access to the conference sessions but paper submission is not included. You can upgrade to full registration at any time by contacting the organizing committee.
+                    {% endif %}
+                </p>
             </div>
             {% endif %}
             

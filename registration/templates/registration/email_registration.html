@@ -7,23 +7,54 @@
     <title>ICFDA 2025 - Registration Confirmation</title>
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+    <div style="background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
         <h1 style="margin: 0;">ICFDA 2025</h1>
         <p style="margin: 10px 0 0 0;">Registration Confirmation</p>
     </div>
     
     <div style="background: #f9f9f9; padding: 30px; border: 1px solid #ddd; border-top: none;">
-        <h2 style="color: #667eea;">Dear {{ registration.first_name }} {{ registration.last_name }},</h2>
+        <h2 style="color: #4CAF50;">Dear {{ registration.first_name }} {{ registration.last_name }},</h2>
         
         <p>Thank you for registering for the International Conference on Fractional Differentiation and its Applications (ICFDA 2025).</p>
         
-        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #667eea; margin-top: 0;">Your Registration Details</h3>
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4CAF50;">
+            <h3 style="color: #4CAF50; margin-top: 0;">Personal Information</h3>
             
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Fee Code:</strong></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #eee; color: #667eea; font-weight: bold;">{{ registration.fee_code }}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; width: 35%;"><strong>Name:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.get_full_name }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Email:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.email }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Phone:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.phone }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{% if registration.location == 'abroad' %}Passport Number{% else %}National ID{% endif %}:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.national_id }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Institution:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.institution }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px;"><strong>Country:</strong></td>
+                    <td style="padding: 8px;">{{ registration.country }}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196F3;">
+            <h3 style="color: #2196F3; margin-top: 0;">Registration Details</h3>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; width: 35%;"><strong>Fee Code:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; color: #4CAF50; font-weight: bold;">{{ registration.fee_code }}</td>
                 </tr>
                 <tr>
                     <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Registration ID:</strong></td>
@@ -38,17 +69,251 @@
                     <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.get_registration_period_display }}</td>
                 </tr>
                 <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Institution:</strong></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.institution }}</td>
+                    <td style="padding: 8px;"><strong>Registration Location:</strong></td>
+                    <td style="padding: 8px;">{{ registration.get_location_display }}</td>
+                </tr>
+            </table>
+        </div>
+        
+        {% if papers %}
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #FF9800;">
+            <h3 style="color: #E65100; margin-top: 0;">Registered Papers</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; width: 35%;"><strong>Number of Papers:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ papers|length }}</td>
                 </tr>
                 <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Country:</strong></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.country }}</td>
+                    <td style="padding: 8px; vertical-align: top;"><strong>Paper Numbers:</strong></td>
+                    <td style="padding: 8px;">
+                        {% for paper in papers %}
+                            {{ paper.paper_number }}{% if paper.is_additional %} <em>(Additional - €100)</em>{% endif %}{% if not forloop.last %}<br>{% endif %}
+                        {% endfor %}
+                    </td>
                 </tr>
-                {% if registration.total_amount > 0 %}
+            </table>
+        </div>
+        {% endif %}
+        
+        {% if registration.tutorial_full_day or registration.tutorial_period %}
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #9C27B0;">
+            <h3 style="color: #7B1FA2; margin-top: 0;">Tutorial Registration</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                {% if registration.tutorial_full_day %}
                 <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Total Amount:</strong></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold; color: #667eea;">
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; width: 35%;"><strong>Full Day Tutorial:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                        ✓ Registered
+                        {% if registration.location == 'algeria' %}
+                            <span style="color: #666; font-size: 0.9em;">(12,000 DA)</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if registration.tutorial_period %}
+                <tr>
+                    <td style="padding: 8px;"><strong>Tutorial Per Period:</strong></td>
+                    <td style="padding: 8px;">
+                        ✓ Registered
+                        {% if registration.location == 'algeria' %}
+                            <span style="color: #666; font-size: 0.9em;">(7,000 DA)</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        {% endif %}
+        
+        {% if registration.welcome_dinner or registration.dinner or registration.gala_dinner or registration.lunch or registration.social_program %}
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+            <h3 style="color: #856404; margin-top: 0;">Catering & Events</h3>
+            
+            <h4 style="margin-bottom: 10px;">Main Participant ({{ registration.get_full_name }}):</h4>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                {% if registration.welcome_dinner %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee; width: 50%;">Welcome Dinner - December 15th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">
+                        ✓ Registered
+                        {% if registration.welcome_dinner_menu %}
+                            <br><small>Menu: {{ registration.get_welcome_dinner_menu_display }}</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if registration.dinner %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Dinner - December 16th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">
+                        ✓ Registered
+                        {% if registration.dinner_menu %}
+                            <br><small>Menu: {{ registration.get_dinner_menu_display }}</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if registration.gala_dinner %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Gala Dinner - December 17th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">
+                        ✓ Registered
+                        {% if registration.gala_dinner_menu %}
+                            <br><small>Menu: {{ registration.get_gala_dinner_menu_display }}</small>
+                        {% endif %}
+                        {% if registration.location == 'abroad' %}
+                            <br><small style="color: #4CAF50;">Price: €45</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if registration.lunch %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Conference Lunch</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">✓ Registered</td>
+                </tr>
+                {% endif %}
+                {% if registration.social_program %}
+                <tr>
+                    <td style="padding: 5px;">Cultural Visit - December 18th</td>
+                    <td style="padding: 5px;">
+                        ✓ Registered
+                        {% if registration.location == 'algeria' %}
+                            <br><small style="color: #4CAF50;">Price: 500 DA</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        {% endif %}
+        
+        {% if accompanying %}
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
+            <h3 style="color: #28a745; margin-top: 0;">Accompanying Person</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; width: 35%;"><strong>Name:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ accompanying.name }}</td>
+                </tr>
+                {% if accompanying.national_id %}
+                <tr>
+                    <td style="padding: 8px;"><strong>{% if registration.location == 'abroad' %}Passport Number{% else %}National ID{% endif %}:</strong></td>
+                    <td style="padding: 8px;">{{ accompanying.national_id }}</td>
+                </tr>
+                {% endif %}
+            </table>
+            
+            <h4 style="margin-bottom: 10px; margin-top: 15px;">Events & Meals:</h4>
+            <table style="width: 100%; border-collapse: collapse;">
+                {% if accompanying.welcome_dinner %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee; width: 50%;">Welcome Dinner - December 15th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">
+                        ✓ Registered
+                        {% if accompanying.welcome_dinner_menu %}
+                            <br><small>Menu: {{ accompanying.get_welcome_dinner_menu_display }}</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if accompanying.dinner %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Dinner - December 16th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">
+                        ✓ Registered
+                        {% if accompanying.dinner_menu %}
+                            <br><small>Menu: {{ accompanying.get_dinner_menu_display }}</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if accompanying.gala_dinner %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Gala Dinner - December 17th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">
+                        ✓ Registered
+                        {% if accompanying.gala_dinner_menu %}
+                            <br><small>Menu: {{ accompanying.get_gala_dinner_menu_display }}</small>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if accompanying.lunch_16 %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Lunch - December 16th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">✓ Registered</td>
+                </tr>
+                {% endif %}
+                {% if accompanying.lunch_17 %}
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Lunch - December 17th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">✓ Registered</td>
+                </tr>
+                {% endif %}
+                {% if accompanying.lunch_18 %}
+                <tr>
+                    <td style="padding: 5px;">Lunch - December 18th</td>
+                    <td style="padding: 5px;">✓ Registered</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        {% endif %}
+        
+        {% if registration.room_type %}
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #17a2b8;">
+            <h3 style="color: #0c5460; margin-top: 0;">Accommodation</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; width: 35%;"><strong>Room Type:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.get_room_type_display }}</td>
+                </tr>
+                {% if registration.check_in_date %}
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Check-in Date:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.check_in_date }}</td>
+                </tr>
+                {% endif %}
+                {% if registration.check_out_date %}
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Check-out Date:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.check_out_date }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Number of Nights:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.number_of_nights }} nights</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px;"><strong>Rate:</strong></td>
+                    <td style="padding: 8px;">
+                        {% if registration.location == 'abroad' %}
+                            {% if registration.room_type == 'single' %}€70/night{% else %}€84/night{% endif %} (Conference Rate)
+                        {% else %}
+                            {% if registration.room_type == 'single' %}10,500 DA/night{% else %}12,500 DA/night{% endif %} (Conference Rate)
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+        
+        {% if registration.special_requirements %}
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+            <h3 style="color: #856404; margin-top: 0;">Special Requirements</h3>
+            <p style="margin: 0;">{{ registration.special_requirements }}</p>
+        </div>
+        {% endif %}
+        
+        {% if registration.total_amount > 0 %}
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+            <h3 style="color: #856404; margin-top: 0;">Payment Information</h3>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; width: 35%;"><strong>Total Amount:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold; color: #4CAF50;">
                         {% if registration.currency == 'EUR' %}
                             €{{ registration.total_amount }}
                         {% elif registration.currency == 'USD' %}
@@ -58,117 +323,100 @@
                         {% endif %}
                     </td>
                 </tr>
-                {% endif %}
+                <tr>
+                    <td style="padding: 8px;"><strong>Payment Status:</strong></td>
+                    <td style="padding: 8px;">{{ registration.get_payment_status_display }}</td>
+                </tr>
             </table>
-        </div>
-        
-        {% if papers %}
-        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #667eea; margin-top: 0;">Registered Papers</h3>
-            <ul style="margin: 0; padding-left: 20px;">
-                {% for paper in papers %}
-                <li>{{ paper.paper_number }}{% if paper.is_additional %} <em>(Additional - €100)</em>{% endif %}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-        
-        {% if accompanying %}
-        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #667eea; margin-top: 0;">Accompanying Person</h3>
-            <p style="margin: 5px 0;"><strong>Name:</strong> {{ accompanying.name }}</p>
-            {% if accompanying.gala_dinner %}
-            <p style="margin: 5px 0;">✓ Gala Dinner included</p>
-            {% endif %}
-            {% if accompanying.dinner %}
-            <p style="margin: 5px 0;">✓ Conference Dinner included</p>
-            {% endif %}
-            {% if accompanying.lunch %}
-            <p style="margin: 5px 0;">✓ Conference Lunch included</p>
-            {% endif %}
-        </div>
-        {% endif %}
-        
-        {% if registration.tutorial_full_day or registration.tutorial_period %}
-        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #667eea; margin-top: 0;">Tutorial Registration</h3>
-            {% if registration.tutorial_full_day %}
-            <p style="margin: 5px 0;">✓ Full Day Tutorial</p>
-            {% endif %}
-            {% if registration.tutorial_period %}
-            <p style="margin: 5px 0;">✓ Tutorial Per Period</p>
-            {% endif %}
-        </div>
-        {% endif %}
-        
-        {% if registration.room_type %}
-        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #667eea; margin-top: 0;">Accommodation</h3>
-            <p style="margin: 5px 0;"><strong>Room Type:</strong> {{ registration.get_room_type_display }}</p>
-            <p style="margin: 5px 0;"><strong>Number of Nights:</strong> {{ registration.number_of_nights }}</p>
-        </div>
-        {% endif %}
-        
-        {% if registration.total_amount > 0 %}
-        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
-            <h3 style="color: #856404; margin-top: 0;">Payment Information</h3>
             
             {% if registration.payment_status == 'completed' %}
             <p style="color: #155724; font-weight: bold;">✓ Payment completed successfully</p>
             {% else %}
-            <p><strong>Bank Transfer Details:</strong></p>
-            <table style="width: 100%; margin: 15px 0;">
-                <tr><td style="padding: 5px; font-weight: bold;">Bank:</td><td style="padding: 5px;">Crédit Populaire d'Algérie (CPA)</td></tr>
-                <tr><td style="padding: 5px; font-weight: bold;">Branch:</td><td style="padding: 5px;">Agence 146 Bab Ezzouar</td></tr>
-                <tr><td style="padding: 5px; font-weight: bold;">Account Holder:</td><td style="padding: 5px;">EGT CENTRE GRAND HOTEL MERCURE</td></tr>
-                <tr><td style="padding: 5px; font-weight: bold;">SWIFT Code:</td><td style="padding: 5px;">CPALDZAL</td></tr>
-                {% if registration.currency == 'EUR' %}
-                <tr><td style="padding: 5px; font-weight: bold;">RIB:</td><td style="padding: 5px;">00400146520817019018</td></tr>
-                <tr><td style="padding: 5px; font-weight: bold;">IBAN:</td><td style="padding: 5px;">DZ 00400146520817019018</td></tr>
-                {% elif registration.currency == 'USD' %}
-                <tr><td style="padding: 5px; font-weight: bold;">RIB:</td><td style="padding: 5px;">00400146520817013974</td></tr>
-                <tr><td style="padding: 5px; font-weight: bold;">IBAN:</td><td style="padding: 5px;">DZ 00400146520817013974</td></tr>
+                {% if registration.location == 'abroad' %}
+                <h4 style="color: #856404; margin-bottom: 15px;">Payment Instructions - Participants Outside Algeria</h4>
+                <p><strong>The hotel team will contact you soon regarding your payment. They will send you a secure payment link from the following emails:</strong></p>
+                <ul style="margin: 15px 0; padding-left: 20px; color: #856404;">
+                    <li><strong>lynda.kaci@accor.com</strong></li>
+                    <li><strong>H3173-re@accor.com</strong></li>
+                    <li><strong>Amir.BENSAADA@accor.com</strong></li>
+                    <li><strong>Nabil.OULDYAHIA@accor.com</strong></li>
+                </ul>
+                
+                <div style="background: #f8d7da; padding: 15px; border-radius: 5px; color: #721c24;">
+                    <p style="margin: 0;"><strong>⚠️ IMPORTANT:</strong> Please include your fee code <strong>{{ registration.fee_code }}</strong> 
+                    in the transfer reference/memo field. After completing the transfer, kindly send the receipt to <strong>samir.ladaci@g.enp.edu.dz</strong></p>
+                </div>
                 {% else %}
-                <tr><td style="padding: 5px; font-weight: bold;">RIB:</td><td style="padding: 5px;">00400146401708170149</td></tr>
-                <tr><td style="padding: 5px; font-weight: bold;">IBAN:</td><td style="padding: 5px;">DZ 00400146401708170149</td></tr>
+                <p><strong>Bank Transfer Details:</strong></p>
+                <table style="width: 100%; margin: 15px 0;">
+                    <tr><td style="padding: 5px; font-weight: bold;">Bank:</td><td style="padding: 5px;">Crédit Populaire d'Algérie (CPA)</td></tr>
+                    <tr><td style="padding: 5px; font-weight: bold;">Branch:</td><td style="padding: 5px;">Agence 146 Bab Ezzouar</td></tr>
+                    <tr><td style="padding: 5px; font-weight: bold;">Account Holder:</td><td style="padding: 5px;">EGT CENTRE GRAND HOTEL MERCURE</td></tr>
+                    <tr><td style="padding: 5px; font-weight: bold;">SWIFT Code:</td><td style="padding: 5px;">CPALDZAL</td></tr>
+                    <tr><td style="padding: 5px; font-weight: bold;">RIB DZD:</td><td style="padding: 5px;">00400146401708170149</td></tr>
+                    <tr><td style="padding: 5px; font-weight: bold;">IBAN:</td><td style="padding: 5px;">DZ 00400146401708170149</td></tr>
+                </table>
+                
+                <div style="background: #f8d7da; padding: 15px; border-radius: 5px; color: #721c24;">
+                    <p style="margin: 0;"><strong>IMPORTANT:</strong> Please include your fee code <strong>{{ registration.fee_code }}</strong> 
+                    in the transfer reference and send the receipt to <strong>samir.ladaci@g.enp.edu.dz</strong></p>
+                </div>
                 {% endif %}
-            </table>
-            
-            <div style="background: #f8d7da; padding: 15px; border-radius: 5px; color: #721c24;">
-                <p style="margin: 0;"><strong>IMPORTANT:</strong> Please include your fee code <strong>{{ registration.fee_code }}</strong> 
-                in the transfer reference and send the receipt to <strong>icfda2025@conference.org</strong></p>
-            </div>
             {% endif %}
         </div>
         {% else %}
         <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
             <h3 style="color: #155724; margin-top: 0;">Registration Confirmed</h3>
-            <p style="color: #155724;">Your visitor registration is complete. No payment required.</p>
+            <p style="color: #155724;">Your registration is complete. No payment required.</p>
         </div>
         {% endif %}
         
-        {% if registration.registration_type == 'visitor' %}
-        <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea;">
-            <h3 style="color: #667eea; margin-top: 0;">Visitor Registration Benefits</h3>
+        {% if registration.registration_type == 'without_paper' %}
+        <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4CAF50;">
+            <h3 style="color: #4CAF50; margin-top: 0;">Registration without Paper Benefits</h3>
             <ul style="margin: 10px 0; padding-left: 20px;">
                 <li>Access to all conference sessions</li>
                 <li>Coffee breaks and networking opportunities</li>
                 <li>Conference materials (digital)</li>
+                {% if registration.location == 'abroad' %}
+                <li>Fixed price: €250</li>
+                {% else %}
+                <li>Fixed price: 20,000 DA</li>
+                {% endif %}
                 <li>Option to upgrade to full registration later</li>
             </ul>
-            <p><em>Note: Paper submission and tutorial access require full registration.</em></p>
+            <p><em>Note: Paper submission requires full registration upgrade.</em></p>
         </div>
         {% endif %}
         
-        <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea;">
-            <h3 style="color: #667eea; margin-top: 0;">Important Information</h3>
-            <ul style="margin: 10px 0; padding-left: 20px;">
-                <li>Keep your fee code <strong>{{ registration.fee_code }}</strong> for all correspondence</li>
-                <li>Conference dates: <strong>December 15-18, 2025</strong></li>
-                <li>Venue: <strong>Hotel Mercure Alger Palais des Congrès, Algiers, Algeria</strong></li>
-                <li>Website: <strong>www.icfda2025.com</strong></li>
-                <li>For questions: <strong>icfda2025@conference.org</strong></li>
-            </ul>
+        <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4CAF50;">
+            <h3 style="color: #4CAF50; margin-top: 0;">Conference Information</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee; width: 30%;"><strong>Event:</strong></td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">International Conference on Fractional Differentiation and its Applications (ICFDA 2025)</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;"><strong>Dates:</strong></td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">December 15-18, 2025</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;"><strong>Venue:</strong></td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Hotel Mercure Alger Palais des Congrès, Algiers, Algeria</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;"><strong>Website:</strong></td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;"><a href="https://icfda2025.com" style="color: #4CAF50;">www.icfda2025.com</a></td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px;"><strong>Contact:</strong></td>
+                    <td style="padding: 5px;"><a href="mailto:samir.ladaci@g.enp.edu.dz" style="color: #4CAF50;">samir.ladaci@g.enp.edu.dz</a></td>
+                </tr>
+            </table>
+            
+            <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                <p style="margin: 0;"><strong>Important:</strong> Keep your fee code <strong style="color: #4CAF50;">{{ registration.fee_code }}</strong> for all correspondence</p>
+            </div>
         </div>
         
         {% if registration.location == 'abroad' %}
@@ -187,8 +435,8 @@
             <p style="color: #666; font-size: 14px;">
                 ICFDA 2025 - International Conference on Fractional Differentiation and its Applications<br>
                 December 15-18, 2025 | Hotel Mercure, Algiers, Algeria<br>
-                <a href="https://icfda2025.com" style="color: #667eea;">www.icfda2025.com</a> | 
-                <a href="mailto:icfda2025@conference.org" style="color: #667eea;">icfda2025@conference.org</a>
+                <a href="https://icfda2025.com" style="color: #4CAF50;">www.icfda2025.com</a> | 
+                <a href="mailto:samir.ladaci@g.enp.edu.dz" style="color: #4CAF50;">samir.ladaci@g.enp.edu.dz</a>
             </p>
         </div>
     </div>

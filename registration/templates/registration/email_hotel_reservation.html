@@ -44,7 +44,7 @@
                     <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.country }}</td>
                 </tr>
                 <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>National ID:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{% if registration.location == 'abroad' %}Passport Number{% else %}National ID{% endif %}:</strong></td>
                     <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.national_id }}</td>
                 </tr>
                 <tr>
@@ -97,19 +97,21 @@
                     </td>
                 </tr>
                 {% if registration.room_type %}
+                {% if registration.check_in_date %}
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Check-in Date:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.check_in_date }}</td>
+                </tr>
+                {% endif %}
+                {% if registration.check_out_date %}
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Check-out Date:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.check_out_date }}</td>
+                </tr>
+                {% endif %}
                 <tr>
                     <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Number of Nights:</strong></td>
                     <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ registration.number_of_nights }} nights</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Accommodation Timing:</strong></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #eee;">
-                        {% if registration.accommodation_timing %}
-                            {{ registration.get_accommodation_timing_display }}
-                        {% else %}
-                            Standard conference period
-                        {% endif %}
-                    </td>
                 </tr>
                 <tr>
                     <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Rate:</strong></td>
@@ -128,7 +130,7 @@
                         {% if registration.accompanying_person %}
                             <span style="color: #28a745; font-weight: bold;">{{ registration.accompanying_person.name }}</span>
                             {% if registration.accompanying_person.national_id %}
-                                <br><small>ID: {{ registration.accompanying_person.national_id }}</small>
+                                <br><small>{% if registration.location == 'abroad' %}Passport{% else %}ID{% endif %}: {{ registration.accompanying_person.national_id }}</small>
                             {% endif %}
                         {% else %}
                             None
@@ -145,13 +147,23 @@
                 {% if registration.tutorial_full_day %}
                 <tr>
                     <td style="padding: 8px; border-bottom: 1px solid #eee; width: 35%;"><strong>Full Day Tutorial:</strong></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #eee;">✓ Registered</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                        ✓ Registered
+                        {% if registration.location == 'algeria' %}
+                            <span style="color: #666; font-size: 0.9em;">(12,000 DA)</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endif %}
                 {% if registration.tutorial_period %}
                 <tr>
                     <td style="padding: 8px;"><strong>Tutorial Per Period:</strong></td>
-                    <td style="padding: 8px;">✓ Registered</td>
+                    <td style="padding: 8px;">
+                        ✓ Registered
+                        {% if registration.location == 'algeria' %}
+                            <span style="color: #666; font-size: 0.9em;">(7,000 DA)</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endif %}
             </table>
@@ -194,6 +206,9 @@
                         {% if registration.gala_dinner_menu %}
                             <br><small>Menu: {{ registration.get_gala_dinner_menu_display }}</small>
                         {% endif %}
+                        {% if registration.location == 'abroad' %}
+                            <br><small style="color: #4CAF50;">Price: €45</small>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endif %}
@@ -206,7 +221,12 @@
                 {% if registration.social_program %}
                 <tr>
                     <td style="padding: 5px;">Cultural Visit - December 18th</td>
-                    <td style="padding: 5px;">✓ Registered</td>
+                    <td style="padding: 5px;">
+                        ✓ Registered
+                        {% if registration.location == 'algeria' %}
+                            <br><small style="color: #4CAF50;">Price: 500 DA</small>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endif %}
                 {% if not registration.welcome_dinner and not registration.dinner and not registration.gala_dinner and not registration.lunch and not registration.social_program %}
@@ -253,12 +273,6 @@
                     </td>
                 </tr>
                 {% endif %}
-                {% if accompanying.welcome_lunch %}
-                <tr>
-                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Welcome Lunch - December 15th</td>
-                    <td style="padding: 5px; border-bottom: 1px solid #eee;">✓ Registered</td>
-                </tr>
-                {% endif %}
                 {% if accompanying.lunch_16 %}
                 <tr>
                     <td style="padding: 5px; border-bottom: 1px solid #eee;">Lunch - December 16th</td>
@@ -267,11 +281,17 @@
                 {% endif %}
                 {% if accompanying.lunch_17 %}
                 <tr>
-                    <td style="padding: 5px;">Lunch - December 17th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">Lunch - December 17th</td>
+                    <td style="padding: 5px; border-bottom: 1px solid #eee;">✓ Registered</td>
+                </tr>
+                {% endif %}
+                {% if accompanying.lunch_18 %}
+                <tr>
+                    <td style="padding: 5px;">Lunch - December 18th</td>
                     <td style="padding: 5px;">✓ Registered</td>
                 </tr>
                 {% endif %}
-                {% if not accompanying.welcome_dinner and not accompanying.dinner and not accompanying.gala_dinner and not accompanying.welcome_lunch and not accompanying.lunch_16 and not accompanying.lunch_17 %}
+                {% if not accompanying.welcome_dinner and not accompanying.dinner and not accompanying.gala_dinner and not accompanying.lunch_16 and not accompanying.lunch_17 and not accompanying.lunch_18 %}
                 <tr>
                     <td style="padding: 5px;" colspan="2">No special events requested</td>
                 </tr>
@@ -335,6 +355,9 @@
                 <li>Note any special requirements in the reservation system</li>
                 {% if registration.accompanying_person %}
                 <li>Ensure accommodation includes space for accompanying person: <strong>{{ registration.accompanying_person.name }}</strong></li>
+                {% endif %}
+                {% if registration.check_in_date and registration.check_out_date %}
+                <li>Reservation dates: <strong>{{ registration.check_in_date }}</strong> to <strong>{{ registration.check_out_date }}</strong> ({{ registration.number_of_nights }} nights)</li>
                 {% endif %}
             </ol>
         </div>

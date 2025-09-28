@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ICFDA 2025 - Registration Form</title>
+    {% load static %}
     <style>
         * {
             margin: 0;
@@ -32,6 +33,33 @@
             background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
             color: white;
             padding: 40px;
+            text-align: center;
+        }
+        
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            text-align: center;
+        }
+        
+        .logo-section {
+            flex-shrink: 0;
+        }
+        
+        .conference-logo {
+            height: 80px;
+            width: auto;
+            max-width: 200px;
+            object-fit: contain;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .title-section {
             text-align: center;
         }
         
@@ -103,6 +131,7 @@
         input[type="email"],
         input[type="tel"],
         input[type="number"],
+        input[type="date"],
         select,
         textarea {
             width: 100%;
@@ -319,14 +348,73 @@
         .dinner-item {
             margin-bottom: 15px;
         }
+
+        .date-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .date-input {
+            flex: 1;
+        }
+
+        .nights-display {
+            background: #e7f7e8;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-weight: 600;
+            color: #4CAF50;
+        }
+
+        /* Responsive design for mobile */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .conference-logo {
+                height: 60px;
+            }
+            
+            .title-section h1 {
+                font-size: 2em;
+            }
+            
+            .row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .date-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Registration</h1>
-            <p>International Conference on Fractional Differentiation and its Applications</p>
-            <p>December 15-18, 2025 - Algiers, Algeria</p>
+            <div class="header-content">
+                <div class="logo-section">
+                    <!-- Option 1: Django static file (preferred) -->
+                    <img src="{% static 'logos/download.png' %}" alt="IFAC Logo" class="conference-logo">
+                    
+                    <!-- Option 2: Direct path fallback -->
+                    <!-- <img src="/static/logos/download.png" alt="IFAC Logo" class="conference-logo"> -->
+                    
+                    <!-- Option 3: Base64 fallback (uncomment if static files don't work) -->
+                    <!-- <img src="data:image/png;base64,YOUR_BASE64_STRING_HERE" alt="IFAC Logo" class="conference-logo"> -->
+                </div>
+                <div class="title-section">
+                    <h1>Registration</h1>
+                    <p>International Conference on Fractional Differentiation and its Applications</p>
+                    <p>December 15-18, 2025 - Algiers, Algeria</p>
+                </div>
+            </div>
         </div>
         
         <div class="form-container">
@@ -386,7 +474,7 @@
                         </div>
                         <div class="col">
                             <div class="form-group">
-                                <label for="nationalId">National ID / Passport Number *</label>
+                                <label for="nationalId" id="nationalIdLabel">National ID / Passport Number *</label>
                                 <input type="text" id="nationalId" name="national_id" required onblur="checkNationalId()">
                                 <span class="error" id="national_id-error"></span>
                             </div>
@@ -430,7 +518,7 @@
                             <option value="">-- Select --</option>
                             <option value="full">Full Registration</option>
                             <option value="student">Student Registration</option>
-                            <option value="visitor">Visitor Registration</option>
+                            <option value="without_paper">Registration without paper</option>
                         </select>
                         <span class="error" id="registration_type-error"></span>
                     </div>
@@ -464,21 +552,21 @@
                     </div>
                 </div>
                 
+                <!-- Tutorial Options (Both locations) -->
+                <div class="subsection">
+                    <h3>Tutorial Options</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="tutorialFullDay" name="tutorial_full_day" onchange="updatePrices()">
+                        <label for="tutorialFullDay">Tutorial Full Day <span class="price-tag" id="tutorialFullDayPrice">12000 DA</span></label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="tutorialPeriod" name="tutorial_period" onchange="updatePrices()">
+                        <label for="tutorialPeriod">Tutorial Per Period <span class="price-tag" id="tutorialPeriodPrice">7000 DA</span></label>
+                    </div>
+                </div>
+                
                 <!-- Abroad-specific sections -->
                 <div id="abroadSection" class="section">
-                    <!-- Tutorial Options -->
-                    <div class="subsection">
-                        <h3>Tutorial Options</h3>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="tutorialFullDay" name="tutorial_full_day" onchange="updatePrices()">
-                            <label for="tutorialFullDay">Tutorial Full Day <span class="price-tag" id="tutorialFullDayPrice">€80</span></label>
-                        </div>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="tutorialPeriod" name="tutorial_period" onchange="updatePrices()">
-                            <label for="tutorialPeriod">Tutorial Per Period <span class="price-tag" id="tutorialPeriodPrice">€50</span></label>
-                        </div>
-                    </div>
-                    
                     <!-- Catering & Gala Dinner -->
                     <div class="subsection">
                         <h3>Catering & Gala Dinner</h3>
@@ -517,7 +605,7 @@
                         <div class="dinner-item">
                             <div class="checkbox-group">
                                 <input type="checkbox" id="galaDinner" name="gala_dinner" onchange="toggleMenuSelection('galaDinner', 'galaDinnerMenu'); updatePrices();">
-                                <label for="galaDinner">Gala Dinner - Wednesday, December 17th <span class="price-tag">€80</span></label>
+                                <label for="galaDinner">Gala Dinner - Wednesday, December 17th <span class="price-tag">€45</span></label>
                             </div>
                             <div class="menu-selection" id="galaDinnerMenu" style="display:none;">
                                 <label for="galaDinnerMenuType">Menu Type *</label>
@@ -594,6 +682,15 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Social Program for Algeria -->
+                    <div class="subsection">
+                        <h3>Social Program</h3>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="socialProgramAlgeria" name="social_program" onchange="updatePrices()">
+                            <label for="socialProgramAlgeria">Cultural Visit of Algiers - December 18, 2025 <span class="price-tag">500 DA</span></label>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Accompanying Person (Common) -->
@@ -609,7 +706,7 @@
                             <input type="text" id="accompanyingName" name="accompanying_person_name">
                         </div>
                         <div class="form-group">
-                            <label for="accompanyingNationalId">National ID / Passport Number</label>
+                            <label for="accompanyingNationalId" id="accompanyingIdLabel">National ID / Passport Number</label>
                             <input type="text" id="accompanyingNationalId" name="accompanying_national_id" placeholder="National ID or Passport Number">
                         </div>
                         
@@ -675,14 +772,6 @@
                         <!-- Lunch Options -->
                         <h4 style="margin: 20px 0 10px 0; color: #4CAF50;">Lunch Options</h4>
                         <div class="checkbox-group">
-                            <input type="checkbox" id="accompanyingWelcomeLunch" name="accompanying_welcome_lunch" onchange="updatePrices()">
-                            <label for="accompanyingWelcomeLunch">
-                                Welcome Lunch - December 15th
-                                <span class="price-tag" id="accompanyingWelcomeLunchPrice">5500 DA</span>
-                            </label>
-                        </div>
-                        
-                        <div class="checkbox-group">
                             <input type="checkbox" id="accompanyingLunch16" name="accompanying_lunch_16" onchange="updatePrices()">
                             <label for="accompanyingLunch16">
                                 Lunch - December 16th
@@ -697,6 +786,14 @@
                                 <span class="price-tag" id="accompanyingLunch17Price">5500 DA</span>
                             </label>
                         </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="accompanyingLunch18" name="accompanying_lunch_18" onchange="updatePrices()">
+                            <label for="accompanyingLunch18">
+                                Lunch - December 18th
+                                <span class="price-tag" id="accompanyingLunch18Price">5500 DA</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
                 
@@ -705,30 +802,34 @@
                     <h3>Accommodation at Hotel Mercure</h3>
                     <div class="form-group">
                         <label for="roomType">Room Type</label>
-                        <select id="roomType" name="room_type" onchange="toggleAccommodationTiming(); updatePrices()">
+                        <select id="roomType" name="room_type" onchange="toggleAccommodationDates(); updatePrices()">
                             <option value="">-- No accommodation needed --</option>
                             <option value="single" id="singleRoom">Single Room - 10,500 DA/night (Special ICFDA Rate)</option>
                             <option value="double" id="doubleRoom">Double Room - 12,500 DA/night (Special ICFDA Rate)</option>
                         </select>
                     </div>
-                    <div class="form-group" id="accommodationTimingGroup" style="display:none;">
-                        <label>Accommodation Timing</label>
-                        <div class="checkbox-group" style="background: white; border: 2px solid #e0e0e0; margin-bottom: 5px;">
-                            <input type="radio" id="accommodationBefore" name="accommodation_timing" value="before">
-                            <label for="accommodationBefore" style="margin-bottom: 0;">Accommodation the night before the presentation day</label>
-                        </div>
-                        <div class="checkbox-group" style="background: white; border: 2px solid #e0e0e0; margin-bottom: 10px;">
-                            <input type="radio" id="accommodationPresentation" name="accommodation_timing" value="presentation">
-                            <label for="accommodationPresentation" style="margin-bottom: 0;">Accommodation on the presentation night itself</label>
-                        </div>
-                        <div style="color: #666; font-size: 0.9em; font-style: italic;">
-                            <strong>Note:</strong> Your exact presentation day will be scheduled later by the committee.
+                    
+                    <div id="accommodationDates" style="display:none;">
+                        <div class="form-group">
+                            <label>Reservation Dates</label>
+                            <div class="date-row">
+                                <div class="date-input">
+                                    <label for="checkInDate">Check-in Date</label>
+                                    <input type="date" id="checkInDate" name="check_in_date" onchange="calculateNights()">
+                                </div>
+                                <div class="date-input">
+                                    <label for="checkOutDate">Check-out Date</label>
+                                    <input type="date" id="checkOutDate" name="check_out_date" onchange="calculateNights()">
+                                </div>
+                            </div>
+                            <div class="nights-display" id="nightsDisplay" style="display:none;">
+                                <span id="nightsText">Number of nights: 0</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="nights">Number of Nights</label>
-                        <input type="number" id="nights" name="number_of_nights" min="0" value="0" onchange="updatePrices()">
-                    </div>
+                    
+                    <input type="hidden" id="nights" name="number_of_nights" value="0">
+                    
                     <div class="info-box">
                         <strong>Special Conference Rates:</strong> These are negotiated rates exclusively for ICFDA 2025 participants. Breakfast included in all rates.
                         <span id="accommodationNote"></span>
@@ -776,8 +877,10 @@
             updatePeriodNotice();
             updatePaperFields(); // Initialize paper fields on page load
             
-            // Initialize accommodation timing visibility
-            toggleAccommodationTiming();
+            // Set minimum dates for accommodation
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('checkInDate').min = today;
+            document.getElementById('checkOutDate').min = today;
         });
         
         function selectLocation(location, button) {
@@ -790,39 +893,53 @@
             });
             button.classList.add('active');
             
+            // Update ID/Passport label
+            const nationalIdLabel = document.getElementById('nationalIdLabel');
+            const accompanyingIdLabel = document.getElementById('accompanyingIdLabel');
+            
+            if (location === 'abroad') {
+                nationalIdLabel.textContent = 'Passport Number *';
+                accompanyingIdLabel.textContent = 'Passport Number';
+            } else {
+                nationalIdLabel.textContent = 'National ID / Passport Number *';
+                accompanyingIdLabel.textContent = 'National ID / Passport Number';
+            }
+            
             // Toggle sections
             if (location === 'abroad') {
                 document.getElementById('abroadSection').classList.add('active');
                 document.getElementById('algeriaSection').classList.remove('active');
                 
-                // Update labels and prices for abroad
+                // Update prices for abroad
                 document.getElementById('tutorialFullDayPrice').textContent = '€80';
                 document.getElementById('tutorialPeriodPrice').textContent = '€50';
                 document.getElementById('accompanyingWelcomePrice').textContent = '€40';
                 document.getElementById('accompanyingDinnerPrice').textContent = '€40';
-                document.getElementById('accompanyingGalaPrice').textContent = '€80';
-                document.getElementById('accompanyingWelcomeLunchPrice').textContent = '€40';
+                document.getElementById('accompanyingGalaPrice').textContent = '€45';
                 document.getElementById('accompanyingLunch16Price').textContent = '€40';
                 document.getElementById('accompanyingLunch17Price').textContent = '€40';
+                document.getElementById('accompanyingLunch18Price').textContent = '€40';
                 document.getElementById('singleRoom').textContent = 'Single Room - €70/night (Special ICFDA Rate)';
                 document.getElementById('doubleRoom').textContent = 'Double Room - €84/night (Special ICFDA Rate)';
             } else {
                 document.getElementById('abroadSection').classList.remove('active');
                 document.getElementById('algeriaSection').classList.add('active');
                 
-                // Update labels and prices for Algeria
+                // Update prices for Algeria
+                document.getElementById('tutorialFullDayPrice').textContent = '12000 DA';
+                document.getElementById('tutorialPeriodPrice').textContent = '7000 DA';
                 document.getElementById('accompanyingWelcomePrice').textContent = '5500 DA';
                 document.getElementById('accompanyingDinnerPrice').textContent = '5500 DA';
                 document.getElementById('accompanyingGalaPrice').textContent = '5000 DA';
-                document.getElementById('accompanyingWelcomeLunchPrice').textContent = '5500 DA';
                 document.getElementById('accompanyingLunch16Price').textContent = '5500 DA';
                 document.getElementById('accompanyingLunch17Price').textContent = '5500 DA';
+                document.getElementById('accompanyingLunch18Price').textContent = '5500 DA';
                 document.getElementById('singleRoom').textContent = 'Single Room - 10,500 DA/night (Special ICFDA Rate)';
                 document.getElementById('doubleRoom').textContent = 'Double Room - 12,500 DA/night (Special ICFDA Rate)';
             }
             
             updateRegistrationInfo();
-            updatePaperFields(); // Update paper fields and pricing when location changes
+            updatePaperFields();
             updatePrices();
         }
 
@@ -861,7 +978,7 @@
                         includedPapers = 2;
                     } else if (regType === 'student') {
                         includedPapers = 1;
-                    } else if (regType === 'visitor') {
+                    } else if (regType === 'without_paper') {
                         includedPapers = 0;
                     }
                 } else {
@@ -893,7 +1010,7 @@
                     input.id = `paper_${i}`;
                     input.placeholder = `e.g., FR-${i}23.4`;
                     input.required = true;
-                    input.addEventListener('input', updatePrices); // Update prices when paper numbers change
+                    input.addEventListener('input', updatePrices);
                     
                     fieldDiv.appendChild(label);
                     fieldDiv.appendChild(input);
@@ -945,8 +1062,12 @@
                 return;
             }
             
-            if (regType === 'visitor') {
-                infoText.textContent = 'Visitor registration provides conference access only. No papers or tutorials included.';
+            if (regType === 'without_paper') {
+                if (currentLocation === 'abroad') {
+                    infoText.textContent = 'Registration without paper - €250. No papers or tutorials included.';
+                } else {
+                    infoText.textContent = 'Registration without paper - 20,000 DA. No papers included.';
+                }
             } else if (currentLocation === 'abroad') {
                 if (regType === 'full') {
                     infoText.textContent = 'Full registration covers 2 papers. Additional papers: €100 each.';
@@ -978,6 +1099,57 @@
             document.getElementById('currentPeriod').textContent = periodText[period];
         }
         
+        function toggleAccommodationDates() {
+            const roomType = document.getElementById('roomType').value;
+            const datesDiv = document.getElementById('accommodationDates');
+            
+            if (roomType === 'single' || roomType === 'double') {
+                datesDiv.style.display = 'block';
+            } else {
+                datesDiv.style.display = 'none';
+                document.getElementById('checkInDate').value = '';
+                document.getElementById('checkOutDate').value = '';
+                document.getElementById('nights').value = '0';
+                document.getElementById('nightsDisplay').style.display = 'none';
+            }
+        }
+        
+        function calculateNights() {
+            const checkIn = document.getElementById('checkInDate').value;
+            const checkOut = document.getElementById('checkOutDate').value;
+            
+            if (checkIn && checkOut) {
+                const checkInDate = new Date(checkIn);
+                const checkOutDate = new Date(checkOut);
+                
+                if (checkOutDate > checkInDate) {
+                    const timeDiff = checkOutDate.getTime() - checkInDate.getTime();
+                    const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    
+                    document.getElementById('nights').value = nights;
+                    document.getElementById('nightsText').textContent = `Number of nights: ${nights}`;
+                    document.getElementById('nightsDisplay').style.display = 'block';
+                    
+                    // Update check-out minimum date
+                    const minCheckOut = new Date(checkInDate);
+                    minCheckOut.setDate(minCheckOut.getDate() + 1);
+                    document.getElementById('checkOutDate').min = minCheckOut.toISOString().split('T')[0];
+                    
+                    updatePrices();
+                } else {
+                    document.getElementById('nights').value = '0';
+                    document.getElementById('nightsDisplay').style.display = 'none';
+                    if (checkOut) {
+                        alert('Check-out date must be after check-in date');
+                        document.getElementById('checkOutDate').value = '';
+                    }
+                }
+            } else {
+                document.getElementById('nights').value = '0';
+                document.getElementById('nightsDisplay').style.display = 'none';
+            }
+        }
+        
         async function updatePrices() {
             const regType = document.getElementById('registrationType').value;
             
@@ -995,14 +1167,17 @@
                 paper_count: paperCount
             };
             
+            // Tutorial options
+            data.tutorial_full_day = document.getElementById('tutorialFullDay').checked;
+            data.tutorial_period = document.getElementById('tutorialPeriod').checked;
+            
             if (currentLocation === 'abroad') {
-                data.tutorial_full_day = document.getElementById('tutorialFullDay').checked;
-                data.tutorial_period = document.getElementById('tutorialPeriod').checked;
                 data.social_program = document.getElementById('socialProgram').checked;
                 data.welcome_dinner = document.getElementById('welcomeDinner').checked;
                 data.dinner = document.getElementById('dinner').checked;
                 data.gala_dinner = document.getElementById('galaDinner').checked;
             } else {
+                data.social_program = document.getElementById('socialProgramAlgeria').checked;
                 data.welcome_dinner = document.getElementById('welcomeDinnerAlgeria').checked;
                 data.dinner = document.getElementById('dinnerAlgeria').checked;
                 data.gala_dinner = document.getElementById('galaDinnerAlgeria').checked;
@@ -1010,13 +1185,12 @@
             
             data.room_type = document.getElementById('roomType').value;
             data.number_of_nights = parseInt(document.getElementById('nights').value) || 0;
-            data.accommodation_timing = document.querySelector('input[name="accommodation_timing"]:checked')?.value || '';
             data.accompanying_welcome = document.getElementById('accompanyingWelcome')?.checked || false;
             data.accompanying_dinner = document.getElementById('accompanyingDinner')?.checked || false;
             data.accompanying_gala = document.getElementById('accompanyingGala')?.checked || false;
-            data.accompanying_welcome_lunch = document.getElementById('accompanyingWelcomeLunch')?.checked || false;
             data.accompanying_lunch_16 = document.getElementById('accompanyingLunch16')?.checked || false;
             data.accompanying_lunch_17 = document.getElementById('accompanyingLunch17')?.checked || false;
+            data.accompanying_lunch_18 = document.getElementById('accompanyingLunch18')?.checked || false;
             
             console.log('Sending price calculation request:', data);
             
@@ -1055,25 +1229,6 @@
             updateRegistrationInfo();
         }
         
-        function toggleAccommodationTiming() {
-            const roomType = document.getElementById('roomType').value;
-            const timingGroup = document.getElementById('accommodationTimingGroup');
-            
-            console.log('toggleAccommodationTiming called, roomType:', roomType); // Debug log
-            
-            if (roomType === 'single' || roomType === 'double') {
-                timingGroup.style.display = 'block';
-                console.log('Showing accommodation timing'); // Debug log
-            } else {
-                timingGroup.style.display = 'none';
-                console.log('Hiding accommodation timing'); // Debug log
-                // Clear radio button selection
-                document.querySelectorAll('input[name="accommodation_timing"]').forEach(radio => {
-                    radio.checked = false;
-                });
-            }
-        }
-        
         function toggleAccompanyingPerson() {
             const isChecked = document.getElementById('accompanyingPerson').checked;
             const details = document.getElementById('accompanyingDetails');
@@ -1087,12 +1242,11 @@
                 
                 // Clear checkboxes and menus
                 const checkboxes = ['accompanyingWelcome', 'accompanyingDinner', 'accompanyingGala', 
-                                 'accompanyingWelcomeLunch', 'accompanyingLunch16', 'accompanyingLunch17'];
+                                 'accompanyingLunch16', 'accompanyingLunch17', 'accompanyingLunch18'];
                 checkboxes.forEach(id => {
                     const checkbox = document.getElementById(id);
                     if (checkbox) {
                         checkbox.checked = false;
-                        // Also hide corresponding menu
                         const menuId = id + 'Menu';
                         const menuDiv = document.getElementById(menuId);
                         if (menuDiv) {

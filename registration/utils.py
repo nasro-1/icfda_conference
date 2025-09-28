@@ -35,16 +35,81 @@ def send_confirmation_email(registration, template='registration'):
             body=text_content,
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[registration.email],
-            reply_to=['icfda2025@conference.org']
+            reply_to=[settings.ICFDA_2025_CONFIG['CONTACT_INFO']['REGISTRATION_EMAIL']]
         )
         email.attach_alternative(html_content, "text/html")
         email.send()
         
         logger.info(f"Registration confirmation sent to {registration.email}")
+        
+        # Also send hotel reservation email if participant needs accommodation
+        if should_send_hotel_email(registration):
+            send_hotel_reservation_email(registration)
+        
         return True
         
     except Exception as e:
         logger.error(f"Failed to send registration email to {registration.email}: {str(e)}")
+        return False
+
+
+def should_send_hotel_email(registration):
+    """Check if hotel reservation email should be sent"""
+    # Send hotel email if:
+    # 1. Participant requested accommodation (has room_type)
+    # 2. Or participant is international (location = 'abroad') 
+    # 3. Or participant has accompanying person
+    return (
+        registration.room_type or 
+        registration.location == 'abroad' or 
+        hasattr(registration, 'accompanying_person') and registration.accompanying_person
+    )
+
+
+def send_hotel_reservation_email(registration):
+    """Send hotel reservation request email to hotel staff"""
+    try:
+        subject = f'ICFDA 2025 – Hotel Reservation Request - {registration.get_full_name()} ({registration.fee_code})'
+        
+        context = {
+            'registration': registration,
+            'papers': registration.papers.all(),
+            'accompanying': getattr(registration, 'accompanying_person', None),
+            'conference_dates': 'December 15-18, 2025',
+            'bank_details': get_bank_details(registration.currency),
+        }
+        
+        html_content = render_to_string('registration/email_hotel_reservation.html', context)
+        text_content = strip_tags(html_content)
+        
+        # Get hotel email configuration from settings
+        hotel_config = settings.ICFDA_2025_CONFIG.get('HOTEL_RESERVATION_EMAILS', {})
+        
+        # Primary recipients (hotel staff)
+        to_emails = hotel_config.get('TO_EMAILS', ['nasro.mellah@gmail.com'])
+        
+        # CC recipients (conference organizers)
+        cc_emails = hotel_config.get('CC_EMAILS', ['samir.ladaci@g.enp.edu.dz'])
+        
+        # Reply-to email
+        reply_to_email = hotel_config.get('REPLY_TO_EMAIL', 'nasro.mellah@gmail.com')
+        
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=to_emails,
+            cc=cc_emails,
+            reply_to=[reply_to_email]
+        )
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+        
+        logger.info(f"Hotel reservation email sent for {registration.get_full_name()} to {to_emails}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to send hotel reservation email for {registration.email}: {str(e)}")
         return False
 
 
@@ -69,7 +134,7 @@ def send_payment_confirmation(registration):
             body=text_content,
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[registration.email],
-            reply_to=['icfda2025@conference.org']
+            reply_to=[settings.ICFDA_2025_CONFIG['CONTACT_INFO']['REGISTRATION_EMAIL']]
         )
         email.attach_alternative(html_content, "text/html")
         email.send()
@@ -82,95 +147,40 @@ def send_payment_confirmation(registration):
         return False
 
 
-def send_hotel_reservation_email(registration):
-    """Send hotel reservation request email for international participants"""
-    if registration.location != 'abroad':
-        return False
-        
-    try:
-        subject = f'ICFDA 2025 – Reservation Request - {registration.get_full_name()}'
-        
-        # Calculate total nights needed (assuming conference dates Dec 15-18, 2025)
-        conference_nights = 4  # Default conference duration
-        total_nights = max(registration.number_of_nights, conference_nights)
-        
-        accompanying_count = 1 if hasattr(registration, 'accompanying_person') else 0
-        
-        context = {
-            'registration': registration,
-            'papers': registration.papers.all(),
-            'accompanying': getattr(registration, 'accompanying_person', None),
-            'total_nights': total_nights,
-            'accompanying_count': accompanying_count,
-            'conference_dates': 'December 15-18, 2025',
-        }
-        
-        html_content = render_to_string('registration/email_hotel_reservation.html', context)
-        text_content = strip_tags(html_content)
-        
-        # Hotel staff email addresses as specified
-        hotel_recipients = [
-            'lynda.kaci@accor.com',
-            'H3173-re@accor.com',
-            'Amir.BENSAADA@accor.com'
-        ]
-        
-        # CC recipients
-        cc_recipients = [
-            'Nabil.OULDYAHIA@accor.com',
-            'samir.ladaci@g.enp.edu.dz',
-            'nasro.mellah@gmail.com'
-        ]
-        
-        # Note: 'Nizar' email address needs to be provided by the organizers
-        # You can add it to cc_recipients once available
-        
-        email = EmailMultiAlternatives(
-            subject=subject,
-            body=text_content,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=hotel_recipients,
-            cc=cc_recipients,
-            reply_to=['icfda2025@conference.org']
-        )
-        email.attach_alternative(html_content, "text/html")
-        email.send()
-        
-        logger.info(f"Hotel reservation email sent for {registration.get_full_name()}")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Failed to send hotel reservation email for {registration.email}: {str(e)}")
-        return False
-
-
 def get_bank_details(currency='EUR'):
     """Get bank transfer details based on currency"""
+    bank_config = settings.ICFDA_2025_CONFIG.get('BANK_DETAILS', {})
+    
     base_details = {
-        'bank': 'Crédit Populaire d\'Algérie (CPA)',
-        'branch': 'Agence 146 Bab Ezzouar',
-        'account_holder': 'EGT CENTRE GRAND HOTEL MERCURE',
-        'swift': 'CPALDZAL',
-        'iban_prefix': 'DZ 004'
+        'bank': bank_config.get('BANK_NAME', 'Crédit Populaire d\'Algérie (CPA)'),
+        'branch': bank_config.get('BRANCH', 'Agence 146 Bab Ezzouar'),
+        'account_holder': bank_config.get('ACCOUNT_HOLDER', 'EGT CENTRE GRAND HOTEL MERCURE'),
+        'swift': bank_config.get('SWIFT_CODE', 'CPALDZAL'),
+        'iban_prefix': bank_config.get('IBAN_PREFIX', 'DZ 004')
     }
     
-    if currency == 'EUR':
+    accounts = bank_config.get('ACCOUNTS', {})
+    
+    if currency == 'EUR' and 'EUR' in accounts:
+        account = accounts['EUR']
         base_details.update({
-            'rib': '00400146520817019018',
-            'account_type': 'EUR Account',
-            'full_iban': 'DZ 00400146520817019018'
+            'rib': account['RIB'],
+            'account_type': account['DESCRIPTION'],
+            'full_iban': account['IBAN']
         })
-    elif currency == 'USD':
+    elif currency == 'USD' and 'USD' in accounts:
+        account = accounts['USD']
         base_details.update({
-            'rib': '00400146520817013974',
-            'account_type': 'USD Account',
-            'full_iban': 'DZ 00400146520817013974'
+            'rib': account['RIB'],
+            'account_type': account['DESCRIPTION'],
+            'full_iban': account['IBAN']
         })
-    else:  # DZD
+    else:  # DZD default
+        account = accounts.get('DZD', {})
         base_details.update({
-            'rib': '00400146401708170149',
-            'account_type': 'DZD Account',
-            'full_iban': 'DZ 00400146401708170149'
+            'rib': account.get('RIB', '00400146401708170149'),
+            'account_type': account.get('DESCRIPTION', 'DZD Account'),
+            'full_iban': account.get('IBAN', 'DZ 00400146401708170149')
         })
     
     return base_details
@@ -302,7 +312,7 @@ def send_bulk_email(subject, message, recipient_list, html_message=None):
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[],
             bcc=recipient_list,
-            reply_to=['icfda2025@conference.org']
+            reply_to=[settings.ICFDA_2025_CONFIG['CONTACT_INFO']['REGISTRATION_EMAIL']]
         )
         
         if html_message:
@@ -318,11 +328,16 @@ def send_bulk_email(subject, message, recipient_list, html_message=None):
         return False
 
 
-def generate_invoice_pdf(registration):
-    """Generate invoice PDF for registration"""
-    # This would require a PDF library like ReportLab
-    # Implementation depends on your specific invoice design requirements
-    pass
+def send_manual_hotel_email(registration_id):
+    """Manually send hotel reservation email for a specific registration"""
+    from .models import Registration
+    
+    try:
+        registration = Registration.objects.get(registration_id=registration_id)
+        return send_hotel_reservation_email(registration)
+    except Registration.DoesNotExist:
+        logger.error(f"Registration {registration_id} not found")
+        return False
 
 
 def validate_registration_data(data):

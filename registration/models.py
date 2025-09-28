@@ -1,6 +1,6 @@
 """
 registration/models.py
-Updated models for ICFDA 2025 with individual menu selections for each dinner
+Updated models for ICFDA 2025 with new pricing structure and registration types
 """
 
 from django.db import models
@@ -9,12 +9,13 @@ from django.utils import timezone
 import uuid
 import secrets
 import string
+from datetime import datetime, timedelta
 
 class Registration(models.Model):
     REGISTRATION_TYPES = [
         ('full', 'Full Registration'),
         ('student', 'Student Registration'),
-        ('visitor', 'Visitor Registration'),
+        ('without_paper', 'Registration without paper'),
     ]
     
     LOCATION_CHOICES = [
@@ -54,11 +55,6 @@ class Registration(models.Model):
         ('cancelled', 'Cancelled'),
     ]
     
-    ACCOMMODATION_TIMING_CHOICES = [
-        ('before', 'Night before presentation'),
-        ('presentation', 'Night of presentation'),
-    ]
-    
     # Unique identifiers
     registration_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
     fee_code = models.CharField(max_length=20, unique=True, blank=True, null=True, db_index=True)
@@ -74,11 +70,11 @@ class Registration(models.Model):
     
     # Registration Details
     location = models.CharField(max_length=10, choices=LOCATION_CHOICES)
-    registration_type = models.CharField(max_length=10, choices=REGISTRATION_TYPES)
+    registration_type = models.CharField(max_length=15, choices=REGISTRATION_TYPES)
     registration_period = models.CharField(max_length=10, choices=REGISTRATION_PERIODS)
     registration_date = models.DateTimeField(default=timezone.now)
     
-    # Tutorial Options (available for both locations now)
+    # Tutorial Options (available for both locations)
     tutorial_full_day = models.BooleanField(default=False)
     tutorial_period = models.BooleanField(default=False)
     
@@ -94,22 +90,14 @@ class Registration(models.Model):
     gala_dinner = models.BooleanField(default=False)
     gala_dinner_menu = models.CharField(max_length=20, choices=MENU_CHOICES, blank=True, null=True)
     
-    # Keep the old menu_type field for backward compatibility
-    menu_type = models.CharField(max_length=20, choices=MENU_CHOICES, blank=True, null=True, 
-                                help_text="Legacy field - use individual dinner menu fields instead")
-    
-    # Social Program (only for abroad)
+    # Social Program
     social_program = models.BooleanField(default=False)
     
-    # Accommodation
+    # Accommodation with date selection
     room_type = models.CharField(max_length=10, choices=ROOM_TYPES, blank=True, null=True)
+    check_in_date = models.DateField(blank=True, null=True)
+    check_out_date = models.DateField(blank=True, null=True)
     number_of_nights = models.IntegerField(default=0, validators=[MinValueValidator(0)])
-    accommodation_timing = models.CharField(
-        max_length=20, 
-        choices=ACCOMMODATION_TIMING_CHOICES, 
-        blank=True, 
-        null=True
-    )
     
     # Payment Information
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, blank=True, null=True)
@@ -156,6 +144,11 @@ class Registration(models.Model):
         if not self.registration_period:
             self.registration_period = self.get_current_period()
         
+        # Calculate nights from dates
+        if self.check_in_date and self.check_out_date:
+            delta = self.check_out_date - self.check_in_date
+            self.number_of_nights = max(0, delta.days)
+        
         # Calculate total if not set
         if self.total_amount == 0:
             self.total_amount = self.calculate_total()
@@ -165,7 +158,6 @@ class Registration(models.Model):
     @staticmethod
     def get_current_period():
         """Determine current registration period based on date"""
-        from datetime import datetime
         today = datetime.now().date()
         early_deadline = datetime(2025, 10, 15).date()
         normal_deadline = datetime(2025, 11, 21).date()
@@ -189,17 +181,17 @@ class Registration(models.Model):
         period = self.registration_period or self.get_current_period()
         
         if self.location == 'abroad':
-            # Base registration fee for international participants
+            # Base registration fees for international participants
             if self.registration_type == 'full':
                 base_fees = {'early': 250, 'normal': 300, 'late': 350}
                 total = base_fees.get(period, 350)
             elif self.registration_type == 'student':
                 base_fees = {'early': 150, 'normal': 200, 'late': 250}
                 total = base_fees.get(period, 250)
-            elif self.registration_type == 'visitor':
-                total = 0
+            elif self.registration_type == 'without_paper':
+                total = 250  # Fixed price for registration without paper
             
-            # Tutorial fees
+            # Tutorial fees for abroad participants
             if self.tutorial_full_day:
                 if self.registration_type == 'student':
                     total += 80 if period == 'late' else 50
@@ -214,7 +206,7 @@ class Registration(models.Model):
             
             # Catering for abroad participants
             if self.gala_dinner:
-                total += 80
+                total += 45  # Updated price: €45 instead of €80
             if self.dinner:
                 total += 40
             if self.welcome_dinner:
@@ -240,21 +232,15 @@ class Registration(models.Model):
             elif self.registration_type == 'student':
                 base_fees = {'early': 15000, 'normal': 20000, 'late': 25000}
                 total = base_fees.get(period, 25000)
-            elif self.registration_type == 'visitor':
-                total = 0
+            elif self.registration_type == 'without_paper':
+                total = 20000  # Fixed price for registration without paper
             
-            # Tutorial fees for Algerian participants
+            # Tutorial fees for Algerian participants - NEW PRICES
             if self.tutorial_full_day:
-                if self.registration_type == 'student':
-                    total += 7000 if period == 'late' else 4000
-                else:
-                    total += 10000 if period == 'late' else 8000
+                total += 12000  # Fixed price: 12,000 DA
             
             if self.tutorial_period:
-                if self.registration_type == 'student':
-                    total += 5000 if period == 'late' else 3000
-                else:
-                    total += 8000 if period == 'late' else 5000
+                total += 7000  # Fixed price: 7,000 DA
             
             # Catering for Algerian participants
             if self.gala_dinner:
@@ -263,6 +249,10 @@ class Registration(models.Model):
                 total += 5500
             if self.welcome_dinner:
                 total += 5500
+            
+            # Social Program for Algeria - NEW
+            if self.social_program:
+                total += 500  # 500 DA for social program
             
             # Accommodation
             if self.room_type == 'single':
@@ -327,19 +317,10 @@ class AccompanyingPerson(models.Model):
     gala_dinner = models.BooleanField(default=False)
     gala_dinner_menu = models.CharField(max_length=20, choices=Registration.MENU_CHOICES, blank=True, null=True)
     
-    # Lunches (no menu selection needed)
-    welcome_lunch = models.BooleanField(default=False)
-    lunch_16 = models.BooleanField(default=False)
-    lunch_17 = models.BooleanField(default=False)
-    
-    # Keep the old menu_type field for backward compatibility
-    menu_type = models.CharField(
-        max_length=20,
-        choices=Registration.MENU_CHOICES,
-        blank=True,
-        null=True,
-        help_text="Legacy field - use individual dinner menu fields instead"
-    )
+    # Updated Lunches - removed welcome_lunch, added lunch_18
+    lunch_16 = models.BooleanField(default=False, help_text="Lunch - December 16th")
+    lunch_17 = models.BooleanField(default=False, help_text="Lunch - December 17th")
+    lunch_18 = models.BooleanField(default=False, help_text="Lunch - December 18th")
     
     def __str__(self):
         return f"Accompanying: {self.name} for {self.registration.get_full_name()}"
@@ -348,30 +329,33 @@ class AccompanyingPerson(models.Model):
         """Calculate cost for accompanying person"""
         cost = 0
         if self.registration.location == 'abroad':
+            # Updated gala dinner price for accompanying person
             if self.gala_dinner:
-                cost += 80
+                cost += 45  # Updated to match main participant price
             if self.dinner:
                 cost += 40
             if self.welcome_dinner:
                 cost += 40
-            if self.welcome_lunch:
-                cost += 40
+            # Lunch prices for abroad
             if self.lunch_16:
                 cost += 40
             if self.lunch_17:
+                cost += 40
+            if self.lunch_18:
                 cost += 40
         else:  # Algeria
             if self.gala_dinner:
-                cost += 5000  # Updated to 5000 DA for accompanying person gala dinner
+                cost += 5000  # Accompanying person gala dinner
             if self.dinner:
                 cost += 5500
             if self.welcome_dinner:
                 cost += 5500
-            if self.welcome_lunch:
-                cost += 5500
+            # Lunch prices for Algeria
             if self.lunch_16:
                 cost += 5500
             if self.lunch_17:
+                cost += 5500
+            if self.lunch_18:
                 cost += 5500
         return cost
 

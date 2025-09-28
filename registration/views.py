@@ -1,6 +1,6 @@
 """
 registration/views.py
-Updated views for ICFDA 2025 to handle individual menu selections
+Updated views for ICFDA 2025 with new pricing structure and accommodation dates
 """
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -17,6 +17,7 @@ from django.db import transaction
 import json
 import logging
 import stripe
+from datetime import datetime, date
 
 from .models import Registration, PaymentTransaction, Paper, AccompanyingPerson
 from .utils import send_confirmation_email, send_payment_confirmation, send_hotel_reservation_email
@@ -71,7 +72,7 @@ class RegistrationFormView(View):
             registration.ip_address = self.get_client_ip(request)
             registration.user_agent = request.META.get('HTTP_USER_AGENT', '')
             
-            # Process tutorial options (now available for both locations)
+            # Process tutorial options (available for both locations)
             registration.tutorial_full_day = self.parse_bool(data.get('tutorial_full_day', False))
             registration.tutorial_period = self.parse_bool(data.get('tutorial_period', False))
             
@@ -81,8 +82,8 @@ class RegistrationFormView(View):
                 registration.payment_method = data.get('payment_method', 'transfer')
             else:
                 registration.payment_method = 'transfer'
-                # No social program for Algeria
-                registration.social_program = False
+                # Social program available for Algeria too now
+                registration.social_program = self.parse_bool(data.get('social_program', False))
             
             # Process individual dinner selections with menus
             registration.welcome_dinner = self.parse_bool(data.get('welcome_dinner', False))
@@ -96,10 +97,22 @@ class RegistrationFormView(View):
             
             registration.lunch = self.parse_bool(data.get('lunch', False))
             
-            # Accommodation
+            # Accommodation with date selection
             registration.room_type = data.get('room_type', '') if data.get('room_type') else None
             registration.number_of_nights = int(data.get('number_of_nights', 0))
-            registration.accommodation_timing = data.get('accommodation_timing', '')
+            
+            # Handle date inputs
+            if data.get('check_in_date'):
+                try:
+                    registration.check_in_date = datetime.strptime(data.get('check_in_date'), '%Y-%m-%d').date()
+                except ValueError:
+                    pass
+            
+            if data.get('check_out_date'):
+                try:
+                    registration.check_out_date = datetime.strptime(data.get('check_out_date'), '%Y-%m-%d').date()
+                except ValueError:
+                    pass
             
             # Validate required fields
             errors = {}
@@ -127,6 +140,18 @@ class RegistrationFormView(View):
                 errors['dinner_menu'] = 'Please select a menu for dinner'
             if registration.gala_dinner and not registration.gala_dinner_menu:
                 errors['gala_dinner_menu'] = 'Please select a menu for gala dinner'
+            
+            # Validate accommodation dates
+            if registration.room_type and registration.check_in_date and registration.check_out_date:
+                if registration.check_out_date <= registration.check_in_date:
+                    errors['check_out_date'] = 'Check-out date must be after check-in date'
+            elif registration.room_type and (not registration.check_in_date or not registration.check_out_date):
+                errors['accommodation'] = 'Please provide both check-in and check-out dates for accommodation'
+            
+            # Tutorial validation for without_paper registration
+            if registration.registration_type == 'without_paper':
+                if registration.tutorial_full_day or registration.tutorial_period:
+                    errors['registration_type'] = 'Registration without paper does not include tutorial access'
             
             # Check for duplicate email
             existing_email = Registration.objects.filter(
@@ -169,7 +194,7 @@ class RegistrationFormView(View):
                         included_papers = 2
                     elif registration.registration_type == 'student':
                         included_papers = 1
-                    elif registration.registration_type == 'visitor':
+                    elif registration.registration_type == 'without_paper':
                         included_papers = 0
                 else:  # Algeria - all papers are free
                     included_papers = paper_count
@@ -207,10 +232,10 @@ class RegistrationFormView(View):
                     gala_dinner=self.parse_bool(data.get('accompanying_gala', False)),
                     gala_dinner_menu=data.get('accompanying_gala_menu', ''),
                     
-                    # Lunch selections (no menu needed)
-                    welcome_lunch=self.parse_bool(data.get('accompanying_welcome_lunch', False)),
+                    # Updated lunch selections - removed welcome_lunch, added lunch_18
                     lunch_16=self.parse_bool(data.get('accompanying_lunch_16', False)),
                     lunch_17=self.parse_bool(data.get('accompanying_lunch_17', False)),
+                    lunch_18=self.parse_bool(data.get('accompanying_lunch_18', False)),
                 )
                 
                 # Validate accompanying person menu selections
@@ -485,7 +510,7 @@ def check_national_id(request):
 
 
 def calculate_price(request):
-    """Calculate price based on selected options"""
+    """Calculate price based on selected options with new pricing structure"""
     try:
         data = json.loads(request.body)
         
@@ -509,10 +534,10 @@ def calculate_price(request):
         # Calculate base total
         total = reg.calculate_total()
         
-        # Add accompanying person costs if applicable
+        # Add accompanying person costs if applicable - Updated prices
         if data.get('accompanying_gala'):
             if reg.location == 'abroad':
-                total += 80
+                total += 45  # Updated to €45
             else:
                 total += 5000  # Updated price for accompanying gala dinner
                 
@@ -528,13 +553,7 @@ def calculate_price(request):
             else:
                 total += 5500
         
-        # Add lunches for accompanying person
-        if data.get('accompanying_welcome_lunch'):
-            if reg.location == 'abroad':
-                total += 40
-            else:
-                total += 5500
-                
+        # Add lunches for accompanying person - Updated lunch options
         if data.get('accompanying_lunch_16'):
             if reg.location == 'abroad':
                 total += 40
@@ -546,10 +565,16 @@ def calculate_price(request):
                 total += 40
             else:
                 total += 5500
+                
+        if data.get('accompanying_lunch_18'):  # New lunch option
+            if reg.location == 'abroad':
+                total += 40
+            else:
+                total += 5500
         
         # Add additional papers cost
         paper_count = int(data.get('paper_count', 0))
-        if reg.location == 'abroad' and reg.registration_type != 'visitor':
+        if reg.location == 'abroad' and reg.registration_type != 'without_paper':
             if reg.registration_type == 'full':
                 included_papers = 2
             else:  # student
@@ -588,7 +613,6 @@ def get_current_period_info(request):
     period_display = dict(Registration.REGISTRATION_PERIODS)[period]
     
     # Get deadline dates
-    from datetime import datetime
     deadlines = {
         'early': '2025-10-15',
         'normal': '2025-11-21',

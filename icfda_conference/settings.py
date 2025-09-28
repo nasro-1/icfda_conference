@@ -38,8 +38,6 @@ INSTALLED_APPS = [
     # Third party apps
     'rest_framework',
     'corsheaders',
-    'crispy_forms',
-    'crispy_bootstrap5',
     
     # Local apps
     'registration',
@@ -86,8 +84,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'icfda_conference.wsgi.application'
 
 # Database Configuration
-# For development, use SQLite
-# For production, use PostgreSQL
 DATABASES = {
     'default': {
         'ENGINE': config('DB_ENGINE', default='django.db.backends.sqlite3'),
@@ -162,25 +158,25 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = config(
     'EMAIL_BACKEND', 
-    default='django.core.mail.backends.console.EmailBackend'
+    default='django.core.mail.backends.smtp.EmailBackend'
 )
 
-# SMTP Configuration
+# Gmail SMTP Configuration
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=False, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='nasr_eddine.mellah@g.enp.edu.dz')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
 # Email addresses
 DEFAULT_FROM_EMAIL = config(
     'DEFAULT_FROM_EMAIL', 
-    default='ICFDA 2025 <icfda2025@conference.org>'
+    default='ICFDA 2025 <nasr_eddine.mellah@g.enp.edu.dz>'
 )
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 ADMINS = [
-    ('ICFDA 2025 Admin', 'admin@icfda2025.com'),
+    ('ICFDA 2025 Admin', 'nasro.mellah@gmail.com'),
 ]
 MANAGERS = ADMINS
 
@@ -261,8 +257,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "https://icfda2025.com",
-    "https://www.icfda2025.com",
+    "https://conferences.ifac-control.org",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -278,13 +273,6 @@ CORS_ALLOWED_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
-
-# ============================================================================
-# CRISPY FORMS CONFIGURATION
-# ============================================================================
-
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # ============================================================================
 # REST FRAMEWORK CONFIGURATION
@@ -389,8 +377,8 @@ ICFDA_2025_CONFIG = {
     'CONFERENCE_NAME': 'International Conference on Fractional Differentiation and its Applications',
     'CONFERENCE_SHORT_NAME': 'ICFDA 2025',
     'CONFERENCE_YEAR': 2025,
-    'CONFERENCE_LOCATION': 'Hotel Mercure Alger Palais des Congrès, Algiers, Algeria',
-    'CONFERENCE_WEBSITE': 'https://icfda2025.com',
+    'CONFERENCE_LOCATION': 'Hotel Mercure Alger Bab Ezzouar, Algiers, Algeria',
+    'CONFERENCE_WEBSITE': 'https://conferences.ifac-control.org/icfda2025/',
     
     # Conference Dates
     'CONFERENCE_START_DATE': date(2025, 12, 15),
@@ -432,7 +420,7 @@ ICFDA_2025_CONFIG = {
             'MEALS': {
                 'gala_dinner': 80,
                 'dinner': 40,
-                'lunch': 40,
+                'welcome_dinner': 40,
             },
             'SOCIAL_PROGRAM': 20,
             'ACCOMMODATION': {
@@ -442,50 +430,65 @@ ICFDA_2025_CONFIG = {
             'ACCOMPANYING_PERSON': {
                 'gala_dinner': 80,
                 'dinner': 40,
-                'lunch': 40,
+                'welcome_dinner': 40,
+                'welcome_lunch': 40,
+                'lunch_16': 40,
+                'lunch_17': 40,
             }
         },
         'ALGERIA': {  # Prices in DZD
             'FULL_REGISTRATION': {
-                'early': 0, 'normal': 0, 'late': 0  # Free for Algerians
+                'early': 20000, 'normal': 25000, 'late': 30000
             },
             'STUDENT_REGISTRATION': {
-                'early': 0, 'normal': 0, 'late': 0  # Free for Algerians
+                'early': 15000, 'normal': 20000, 'late': 25000
             },
             'VISITOR_REGISTRATION': {
                 'early': 0, 'normal': 0, 'late': 0
             },
+            'TUTORIAL_FULL_DAY': {
+                'full': {'early': 8000, 'normal': 8000, 'late': 10000},
+                'student': {'early': 4000, 'normal': 4000, 'late': 7000}
+            },
+            'TUTORIAL_PERIOD': {
+                'full': {'early': 5000, 'normal': 5000, 'late': 8000},
+                'student': {'early': 3000, 'normal': 3000, 'late': 5000}
+            },
             'MEALS': {
                 'gala_dinner': 6000,
                 'dinner': 5500,
-                'lunch': 5500,
+                'welcome_dinner': 5500,
             },
             'ACCOMMODATION': {
                 'single_room_per_night': 10500,
                 'double_room_per_night': 12500,
             },
             'ACCOMPANYING_PERSON': {
-                'gala_dinner': 6000,
+                'gala_dinner': 5000,  # Updated price
                 'dinner': 5500,
-                'lunch': 5500,
+                'welcome_dinner': 5500,
+                'welcome_lunch': 5500,
+                'lunch_16': 5500,
+                'lunch_17': 5500,
             }
         }
     },
     
     # Hotel Reservation Email Configuration
-    'HOTEL_RESERVATION_EMAILS': {
-        'TO_EMAILS': [
-            'lynda.kaci@accor.com',
-            'H3173-re@accor.com',
-            'Amir.BENSAADA@accor.com'
-        ],
-        'CC_EMAILS': [
-            'Nabil.OULDYAHIA@accor.com',
-            'samir.ladaci@g.enp.edu.dz',
-            'nasro.mellah@gmail.com'
-        ],
-        'REPLY_TO_EMAIL': 'icfda2025@conference.org'
-    },
+'HOTEL_RESERVATION_EMAILS': {
+    'TO_EMAILS': [
+        'nasro.mellah@gmail.com',  # Hotel responsible person
+        # Add other hotel staff emails if needed:
+        # 'lynda.kaci@accor.com',
+        # 'H3173-re@accor.com',
+        # 'Amir.BENSAADA@accor.com'
+    ],
+    'CC_EMAILS': [
+        'samir.ladaci@g.enp.edu.dz',  # Conference organizer
+        'nasr_eddine.mellah@g.enp.edu.dz',  # Registration coordinator
+    ],
+    'REPLY_TO_EMAIL': 'nasr_eddine.mellah@g.enp.edu.dz'
+},
     
     # Bank Transfer Details
     'BANK_DETAILS': {
@@ -519,12 +522,12 @@ ICFDA_2025_CONFIG = {
     
     # Contact Information
     'CONTACT_INFO': {
-        'GENERAL_EMAIL': 'icfda2025@conference.org',
-        'REGISTRATION_EMAIL': 'registration@icfda2025.com',
-        'TECHNICAL_EMAIL': 'tech@icfda2025.com',
-        'FINANCE_EMAIL': 'finance@icfda2025.com',
-        'PHONE': '+213 XXX XXX XXX',  # Add actual phone number
-        'FAX': '+213 XXX XXX XXX',    # Add actual fax if available
+        'GENERAL_EMAIL': 'samir.ladaci@g.enp.edu.dz',
+        'REGISTRATION_EMAIL': 'nasr_eddine.mellah@g.enp.edu.dz',
+        'TECHNICAL_EMAIL': 'nasro.mellah@gmail.com',
+        'FINANCE_EMAIL': 'samir.ladaci@g.enp.edu.dz',
+        'PHONE': '+213 XXX XXX XXX',
+        'FAX': '+213 XXX XXX XXX',
     },
     
     # Social Media and External Links
@@ -570,7 +573,7 @@ ICFDA_2025_CONFIG = {
         'MAINTENANCE_MODE': config('MAINTENANCE_MODE', default=False, cast=bool),
     },
     
-    # Conference Program Schedule (can be extended)
+    # Conference Program Schedule
     'PROGRAM_SCHEDULE': {
         'DAY_1': {  # December 15, 2025
             'date': '2025-12-15',
@@ -581,7 +584,30 @@ ICFDA_2025_CONFIG = {
                 {'time': '19:00-22:00', 'event': 'Welcome Dinner'},
             ]
         },
-        # Add more days as needed
+        'DAY_2': {  # December 16, 2025
+            'date': '2025-12-16',
+            'events': [
+                {'time': '09:00-12:00', 'event': 'Technical Sessions'},
+                {'time': '14:00-17:00', 'event': 'Paper Presentations'},
+                {'time': '19:00-22:00', 'event': 'Conference Dinner'},
+            ]
+        },
+        'DAY_3': {  # December 17, 2025
+            'date': '2025-12-17',
+            'events': [
+                {'time': '09:00-12:00', 'event': 'Technical Sessions'},
+                {'time': '14:00-17:00', 'event': 'Panel Discussions'},
+                {'time': '19:00-23:00', 'event': 'Gala Dinner'},
+            ]
+        },
+        'DAY_4': {  # December 18, 2025
+            'date': '2025-12-18',
+            'events': [
+                {'time': '09:00-12:00', 'event': 'Final Sessions'},
+                {'time': '12:00-13:00', 'event': 'Closing Ceremony'},
+                {'time': '14:00-18:00', 'event': 'Cultural Visit of Algiers (Optional)'},
+            ]
+        }
     }
 }
 
@@ -624,10 +650,6 @@ if DEBUG:
         }
     except ImportError:
         pass
-    
-    # Console email backend for development
-    if not config('EMAIL_HOST_USER', default=''):
-        EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # ============================================================================
 # PRODUCTION OVERRIDES

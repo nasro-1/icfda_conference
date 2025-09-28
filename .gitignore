@@ -1,0 +1,12 @@
+# Ignore database
+db.sqlite3
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore environment files
+.env
+
+# Ignore static files (if auto-generated)
+static/

@@ -40,8 +40,9 @@ urlpatterns = [
 
 # Serve media and static files in development
 if settings.DEBUG:
+    # This is the important part for serving static files
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0] if settings.STATICFILES_DIRS else settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
     # Optional: Add debug toolbar if installed
     try:

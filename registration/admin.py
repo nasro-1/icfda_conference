@@ -1,6 +1,6 @@
 """
 registration/admin.py
-Updated admin interface for ICFDA 2025 with individual menu field support
+Updated admin interface for ICFDA 2025 with new registration types and lunch options
 """
 
 from django.contrib import admin
@@ -33,13 +33,8 @@ class AccompanyingPersonInline(admin.StackedInline):
             'description': 'Select dinners and corresponding menu types'
         }),
         ('Lunch Events', {
-            'fields': ('welcome_lunch', 'lunch_16', 'lunch_17'),
-            'description': 'Lunch events do not require menu selection'
-        }),
-        ('Legacy Field', {
-            'fields': ('menu_type',),
-            'classes': ('collapse',),
-            'description': 'Legacy menu field - use individual dinner menu fields instead'
+            'fields': ('lunch_16', 'lunch_17', 'lunch_18'),
+            'description': 'Updated lunch events: Dec 16th, 17th, and 18th'
         }),
     )
 
@@ -56,7 +51,7 @@ class PaymentTransactionInline(admin.TabularInline):
 class RegistrationAdmin(admin.ModelAdmin):
     list_display = ('fee_code', 'full_name', 'email', 'registration_type', 
                    'location', 'payment_status_badge', 'total_amount_display', 
-                   'has_tutorials', 'has_dinners', 'created_at')
+                   'has_tutorials', 'has_dinners', 'accommodation_summary', 'created_at')
     list_filter = ('registration_type', 'location', 'payment_status', 
                   'registration_period', 'country', 'room_type', 
                   'tutorial_full_day', 'tutorial_period', 'social_program',
@@ -64,7 +59,7 @@ class RegistrationAdmin(admin.ModelAdmin):
     search_fields = ('fee_code', 'first_name', 'last_name', 'email', 
                     'phone', 'institution', 'national_id')
     readonly_fields = ('registration_id', 'fee_code', 'created_at', 
-                      'updated_at', 'ip_address', 'user_agent')
+                      'updated_at', 'ip_address', 'user_agent', 'number_of_nights')
     date_hierarchy = 'created_at'
     
     fieldsets = (
@@ -89,13 +84,8 @@ class RegistrationAdmin(admin.ModelAdmin):
             ),
             'description': 'Individual dinner selections with specific menu types'
         }),
-        ('Legacy Menu Field', {
-            'fields': ('menu_type',),
-            'classes': ('collapse',),
-            'description': 'Legacy field - use individual dinner menu fields instead'
-        }),
         ('Accommodation', {
-            'fields': ('room_type', 'number_of_nights', 'accommodation_timing')
+            'fields': ('room_type', 'check_in_date', 'check_out_date', 'number_of_nights')
         }),
         ('Payment', {
             'fields': ('payment_method', 'payment_status', 'total_amount', 
@@ -170,6 +160,17 @@ class RegistrationAdmin(admin.ModelAdmin):
         return ', '.join(dinners) if dinners else '—'
     has_dinners.short_description = 'Dinners & Menus'
     
+    def accommodation_summary(self, obj):
+        if obj.room_type:
+            summary = f"{obj.get_room_type_display()}"
+            if obj.check_in_date and obj.check_out_date:
+                summary += f" ({obj.check_in_date} to {obj.check_out_date})"
+            if obj.number_of_nights:
+                summary += f" - {obj.number_of_nights} nights"
+            return summary
+        return '—'
+    accommodation_summary.short_description = 'Accommodation'
+    
     def mark_as_paid(self, request, queryset):
         updated = queryset.update(payment_status='completed')
         self.message_user(request, f'{updated} registrations marked as paid.')
@@ -192,7 +193,8 @@ class RegistrationAdmin(admin.ModelAdmin):
                         'Country', 'Type', 'Location', 'Payment Status', 
                         'Total Amount', 'Currency', 'Papers', 'Tutorials',
                         'Welcome Dinner', 'Welcome Menu', 'Dinner', 'Dinner Menu',
-                        'Gala Dinner', 'Gala Menu', 'Room Type', 'Nights', 'Created'])
+                        'Gala Dinner', 'Gala Menu', 'Room Type', 'Check-in', 'Check-out', 
+                        'Nights', 'Created'])
         
         for reg in queryset:
             writer.writerow([
@@ -216,6 +218,8 @@ class RegistrationAdmin(admin.ModelAdmin):
                 'Yes' if reg.gala_dinner else 'No',
                 reg.get_gala_dinner_menu_display() if reg.gala_dinner_menu else '',
                 reg.get_room_type_display() if reg.room_type else '',
+                reg.check_in_date if reg.check_in_date else '',
+                reg.check_out_date if reg.check_out_date else '',
                 reg.number_of_nights,
                 reg.created_at.strftime('%Y-%m-%d %H:%M')
             ])
@@ -282,8 +286,8 @@ class RegistrationAdmin(admin.ModelAdmin):
         response['Content-Disposition'] = 'attachment; filename="accommodation_summary.csv"'
         
         writer = csv.writer(response)
-        writer.writerow(['Name', 'Email', 'Phone', 'Room Type', 'Nights', 'Timing', 
-                        'Accompanying Person', 'Payment Status', 'Fee Code'])
+        writer.writerow(['Name', 'Email', 'Phone', 'Room Type', 'Check-in', 'Check-out',
+                        'Nights', 'Accompanying Person', 'Payment Status', 'Fee Code'])
         
         accommodations = queryset.exclude(room_type__isnull=True).exclude(room_type='')
         
@@ -294,8 +298,9 @@ class RegistrationAdmin(admin.ModelAdmin):
                 reg.email,
                 reg.phone,
                 reg.get_room_type_display(),
+                reg.check_in_date if reg.check_in_date else '',
+                reg.check_out_date if reg.check_out_date else '',
                 reg.number_of_nights,
-                reg.get_accommodation_timing_display() if reg.accommodation_timing else '',
                 accompanying_name,
                 reg.get_payment_status_display(),
                 reg.fee_code
@@ -347,7 +352,7 @@ class AccompanyingPersonAdmin(admin.ModelAdmin):
     list_display = ('name', 'registration_link', 'dinner_summary', 'lunch_summary')
     list_filter = ('welcome_dinner', 'dinner', 'gala_dinner', 
                   'welcome_dinner_menu', 'dinner_menu', 'gala_dinner_menu',
-                  'welcome_lunch', 'lunch_16', 'lunch_17')
+                  'lunch_16', 'lunch_17', 'lunch_18')  # Updated: removed welcome_lunch, added lunch_18
     search_fields = ('name', 'national_id', 'registration__email', 
                     'registration__first_name', 'registration__last_name')
     
@@ -363,11 +368,8 @@ class AccompanyingPersonAdmin(admin.ModelAdmin):
             )
         }),
         ('Lunch Events', {
-            'fields': ('welcome_lunch', 'lunch_16', 'lunch_17')
-        }),
-        ('Legacy Field', {
-            'fields': ('menu_type',),
-            'classes': ('collapse',),
+            'fields': ('lunch_16', 'lunch_17', 'lunch_18'),
+            'description': 'Updated lunch options: December 16th, 17th, and 18th'
         }),
     )
     
@@ -392,12 +394,12 @@ class AccompanyingPersonAdmin(admin.ModelAdmin):
     
     def lunch_summary(self, obj):
         lunches = []
-        if obj.welcome_lunch:
-            lunches.append('Welcome')
         if obj.lunch_16:
             lunches.append('Dec 16')
         if obj.lunch_17:
             lunches.append('Dec 17')
+        if obj.lunch_18:
+            lunches.append('Dec 18')
         return ', '.join(lunches) if lunches else '—'
     lunch_summary.short_description = 'Lunches'
 
@@ -445,6 +447,7 @@ class MenuSummaryFilter(admin.SimpleListFilter):
         )
     
     def queryset(self, request, queryset):
+        from django.db import models
         if self.value() == 'has_menus':
             return queryset.filter(
                 models.Q(welcome_dinner=True, welcome_dinner_menu__isnull=False) |
